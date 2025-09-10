@@ -26,3 +26,9 @@ create table object_dump (
 	observation_platform TEXT not null,
 	observation_raw_html TEXT not null
 	);
+
+create table object_dump_time_stamp(
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    object_dump_uuid text not null,
+    object_dump_time_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    );

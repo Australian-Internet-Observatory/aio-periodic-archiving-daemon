@@ -41,7 +41,7 @@ def connect_db():
     return conn
 
 def extract_object_json_data(data):
-    print("\n Extracting data from object")
+    print("\nExtracting data from object")
     observer_uuid = data["observer_uuid"]
     plugin_software_version = data["plugin"]["software_version"]
     browser_type = data["browser"]["type"]
@@ -68,7 +68,7 @@ def extract_object_json_data(data):
 
 def copy_data_to_db(data):
     json_values = extract_object_json_data(data)
-    print("\n Copying extracted objects to database")
+    print("\nCopying extracted objects to database")
     conn = connect_db()
     cur = conn.cursor()
 
@@ -92,20 +92,62 @@ def copy_data_to_db(data):
 
     conn.commit()
     generated_id = cur.fetchone()[0]
-    print("Inserted observation with id:", generated_id)
+    print("Inserted into database with id:", generated_id)
 
+    cur.close()
+    conn.close()
+    return generated_id
+
+def populate_audit_log(id):
+    print("\nPopulating timestamp")
+    conn = connect_db()
+    cur = conn.cursor()
+
+    generated_id = id
+    cur.execute (
+        """
+        INSERT INTO object_dump_time_stamp (object_dump_uuid) VALUES (%s)
+        RETURNING id
+        """,
+        (generated_id,))
+    conn.commit()
+    id = cur.fetchone()[0]
+    print("Inserted into database with id:", id)
     cur.close()
     conn.close()
 
 # process object
 def process_object(bucket,key):
-    # get the content of the file
-    obj = s3.get_object(Bucket=BUCKET,Key=key)
-    obj_data = json.loads(obj['Body'].read())
-    print(obj_data)
-    copy_data_to_db(obj_data)
-    # TODO: Re-enable the move to folder
-    # move_to_processed_folder(bucket,key)
+    try:
+        # get the content of the file
+        obj = s3.get_object(Bucket=BUCKET,Key=key)
+        obj_data = json.loads(obj['Body'].read())
+        print("Loaded Object data\n", obj_data)
+    except Exception as e:
+        print(f"Failed at load object data for {key}: {e}")
+        return
+        
+    try:
+        generated_id = copy_data_to_db(obj_data)
+    except Exception as e:
+        print(f"Failed at DB insert for {key}: {e}")
+        return
+
+    try:
+        populate_audit_log(generated_id)
+    except Exception as e:
+        print(f"Failed at auditlog step {key}: {e}")
+        return
+
+    try:    
+        # TODO: Re-enable the move to folder
+        # move_to_processed_folder(bucket,key)
+        pass
+    except Exception as e:
+        print(f"Failed at moving file to processed folder {key}: {e}")
+        return
+    
+    print(f"\nSuccessfully processed {key}")
 
 # list objects using paginator
 def process_all_objects(bucket):
@@ -114,7 +156,7 @@ def process_all_objects(bucket):
         for obj in page.get("Contents", []):
             key = obj["Key"]
             print(obj["Key"])
-            print(f"Retriving S3 objects: {key}")
+            print(f"Retriving S3 object with key: {key}")
 
             # skip all objects in processing folder
             if key.startswith("processed/"):
@@ -126,6 +168,4 @@ def process_all_objects(bucket):
 
 if __name__ == "__main__":
     process_all_objects(BUCKET)
-    print("\nchecking connection")
-    connect_db()
 
