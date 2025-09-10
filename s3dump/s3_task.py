@@ -1,6 +1,7 @@
 import boto3
 import json
 from datetime import datetime
+import psycopg2
 
 BUCKET = "browser-extension-payload-test"
 FOLDER = "processed"
@@ -34,13 +35,77 @@ def move_to_processed_folder(bucket, key):
     print(f"Moved {key} to {new_key}")
     add_processed_tags(bucket, new_key, TAGS)
 
+def connect_db():
+    # connect to existing database
+    conn = psycopg2.connect(host="host.docker.internal", user="postgres", password="test12345678", port="5432")
+    return conn
+
+def extract_object_json_data(data):
+    print("\n Extracting data from object")
+    observer_uuid = data["observer_uuid"]
+    plugin_software_version = data["plugin"]["software_version"]
+    browser_type = data["browser"]["type"]
+    browser_localisation = data["browser"]["localisation"]
+    browser_user_agent_type = data["browser"]["user_agent_type"]
+    browser_user_agent_raw = data["browser"]["user_agent_raw"]
+    observation_query = data["observation"]["query"]
+    observation_time_of_retrieval = data["observation"]["time_of_retrieval"]
+    observation_platform = data["observation"]["platform"]
+    observation_raw_html = data["observation"]["raw_html"]
+
+    return (
+        observer_uuid,
+        plugin_software_version,
+        browser_type,
+        browser_localisation,
+        browser_user_agent_type,
+        browser_user_agent_raw,
+        observation_query,
+        observation_time_of_retrieval,
+        observation_platform,
+        observation_raw_html
+    )
+
+def copy_data_to_db(data):
+    json_values = extract_object_json_data(data)
+    print("\n Copying extracted objects to database")
+    conn = connect_db()
+    cur = conn.cursor()
+
+    query = """
+    INSERT INTO object_dump (
+    observer_uuid,
+    plugin_software_version,
+    browser_type,
+    browser_localisation,
+    browser_user_agent_type,
+    browser_user_agent_raw,
+    observation_query,
+    observation_time_of_retrieval,
+    observation_platform,
+    observation_raw_html
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    RETURNING id
+    """
+
+    cur.execute (query, json_values)
+
+    conn.commit()
+    generated_id = cur.fetchone()[0]
+    print("Inserted observation with id:", generated_id)
+
+    cur.close()
+    conn.close()
+
 # process object
 def process_object(bucket,key):
     # get the content of the file
     obj = s3.get_object(Bucket=BUCKET,Key=key)
     obj_data = json.loads(obj['Body'].read())
     print(obj_data)
-    move_to_processed_folder(bucket,key)
+    copy_data_to_db(obj_data)
+    # TODO: Re-enable the move to folder
+    # move_to_processed_folder(bucket,key)
 
 # list objects using paginator
 def process_all_objects(bucket):
@@ -61,4 +126,6 @@ def process_all_objects(bucket):
 
 if __name__ == "__main__":
     process_all_objects(BUCKET)
+    print("\nchecking connection")
+    connect_db()
 

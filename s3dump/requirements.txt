@@ -1,3 +1,4 @@
 boto3
 awscli
 botocore
+psycopg2-binary

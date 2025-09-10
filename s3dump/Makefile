@@ -25,4 +25,4 @@ ssh-db:
 	ssh -i /Users/E129044/Downloads/psqljumpbox.pem -L 5432:testbrowserext.cjpd8tzzheam.ap-southeast-2.rds.amazonaws.com:5432 ec2-user@3.26.23.185
 
 run-db:
-	psql -h testbrowserext.cjpd8tzzheam.ap-southeast-2.rds.amazonaws.com -U postgres -p 5432
+	psql -h host.docker.internal -h testbrowserext.cjpd8tzzheam.ap-southeast-2.rds.amazonaws.com -U postgres -p 5432
