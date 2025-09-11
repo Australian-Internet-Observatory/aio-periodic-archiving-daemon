@@ -1,18 +1,7 @@
-SELECT table_schema, table_name, table_type
-FROM information_schema.tables
-WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-ORDER BY table_schema, table_name;
-
-
+-- Enable UUID in postgres
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-
-CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name TEXT NOT NULL,
-    email TEXT UNIQUE
-);
-
+-- create table to dump all the opject values from s3 to postgres
 create table object_dump (
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	observer_uuid text not null,
@@ -27,6 +16,7 @@ create table object_dump (
 	observation_raw_html TEXT not null
 	);
 
+-- create table to dump audit log
 create table object_dump_time_stamp(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     object_dump_uuid text not null,
