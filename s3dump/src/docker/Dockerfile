@@ -14,4 +14,4 @@ RUN python3 -m pip install --upgrade pip setuptools \
 
 WORKDIR /app
 
-COPY s3_task.py /app/s3_task.py
+COPY /lib /app
