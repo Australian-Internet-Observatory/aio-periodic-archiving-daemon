@@ -3,12 +3,12 @@ import secret_manager
 
 secret_name="dev-cilogon"
 secrets = secret_manager.get_secret_by_name(secret_name)
-print (secrets)
 
 secrets = secret_manager.get_secret_by_name(secret_name)
 
 def connect_db():
     # connect to existing database
+    # TODO: Change the host for ecs
     conn = psycopg2.connect(host="host.docker.internal", user = secrets['s3_posgres_username'], password = secrets['s3_postgres_password'], port="5432")
     return conn
 

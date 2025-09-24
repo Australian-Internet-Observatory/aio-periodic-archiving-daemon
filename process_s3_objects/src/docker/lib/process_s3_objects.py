@@ -2,7 +2,6 @@ import boto3
 import json
 from datetime import datetime
 import database_ingestion as db
-import secret_manager
 
 BUCKET = "browser-extension-payload-test"
 FOLDER = "processed"
@@ -59,9 +58,8 @@ def process_object(bucket,key):
         print(f"Failed at auditlog step {key}: {e}")
         return
 
-    try:    
-        # TODO: Re-enable the move to folder
-        # move_to_processed_folder(bucket,key)
+    try:
+        move_to_processed_folder(bucket,key)
         pass
     except Exception as e:
         print(f"Failed at moving file to processed folder {key}: {e}")

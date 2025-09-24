@@ -1,6 +1,9 @@
--- Enable UUID in postgres
+-- Run the following scripts in order
+
+-- 1. Enable UUID in postgres
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- 2. Create Object dump table
 -- create table to dump all the opject values from s3 to postgres
 create table object_dump (
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -16,6 +19,7 @@ create table object_dump (
 	observation_raw_html TEXT not null
 	);
 
+-- 3. Create audit log table
 -- create table to dump audit log
 create table object_dump_time_stamp(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

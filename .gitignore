@@ -2,3 +2,4 @@ node_modules/
 build_MV2/
 build_MV3/
 source_code.zip
+.DS_Store
