@@ -1,11 +1,7 @@
 import ext from '../utils/utilitiesCrossBrowser';
 import storage from '../utils/utilitiesStorage';
-import { debugAO, CONST_MANIFEST_VERSION_INTEGER, getConfig } from '../config';
+import { LOCAL_DEBUG, CONST_MANIFEST_VERSION_INTEGER, getConfig } from '../config';
 import SearchRoutine from '../searchRoutine/searchRoutineMain';
-
-const CONST_SEARCH_PROCESS_REGISTRATION_TIMER_VALUE = 10000;
-const CONST_SEARCH_PROCESS_PULSE_CHECKER_TIMER_VALUE = 5000;
-const CONST_SEARCH_PROCESS_PULSE_UPPER_LIMIT_MULTIPLICANT = 4;
 
 // This action mediates the search process to ensure that the page has been invoked correctly
 var port = ext.runtime.connect(ext.runtime.id);
@@ -17,10 +13,10 @@ function recursivelyRegisterServiceWorker() {
 	if ('serviceWorker' in navigator) {
 		navigator.serviceWorker.register('../background.js').then(function(registration) {
 			// Registration was successful
-			if (debugAO) { console.log('ServiceWorker registration successful with scope: ', registration.scope); }
+			if (LOCAL_DEBUG) { console.log('ServiceWorker registration successful with scope: ', registration.scope); }
 		}, function(err) {
 			// registration failed :(
-			if (debugAO) { console.log('ServiceWorker registration failed: ', err); }
+			if (LOCAL_DEBUG) { console.log('ServiceWorker registration failed: ', err); }
 		});
 	}
 	setTimeout(function() { recursivelyRegisterServiceWorker(); }, );
@@ -33,7 +29,7 @@ if (CONST_MANIFEST_VERSION_INTEGER >= 3) {
 
 function checkSearchProcessPulse() {
 	// If there is no activity for longer than twice the search page interval, kill the search process.
-	if (debugAO) {  console.log("Executing a search process pulse..."); }
+	if (LOCAL_DEBUG) {  console.log("Executing a search process pulse..."); }
 	storage.get("searchRoutinePulse", (result) => {
 		if ('searchRoutinePulse' in result) {
 			getConfig().then(config => {
@@ -41,21 +37,21 @@ function checkSearchProcessPulse() {
 				try { 
 					pulseValue = parseInt(result.searchRoutinePulse);
 				} catch (e) { 
-					if (debugAO) { console.log("The search process is ending early due to a dead pulse error."); }
+					if (LOCAL_DEBUG) { console.log("The search process is ending early due to a dead pulse error."); }
 	                SearchRoutine.searchRoutineCleanUp();
 	            }
-				if (((+new Date()) - pulseValue) > (config.searchProcessInterval*CONST_SEARCH_PROCESS_PULSE_UPPER_LIMIT_MULTIPLICANT)) {
+				if (((+new Date()) - pulseValue) > (config.constants.searchProcessInterval*config.constants.maxTimesToRunPerDay)) {
 					// Kill the process
-	                if (debugAO) { console.log("The search process is ending early due to a dead pulse error."); }
+	                if (LOCAL_DEBUG) { console.log("The search process is ending early due to a dead pulse error."); }
 	                SearchRoutine.searchRoutineCleanUp();
 				}
 
-				if (debugAO) { 
+				if (LOCAL_DEBUG) { 
 					console.log("Pulse value:",pulseValue," | Current Date:", (+new Date()), " | Difference:", ((+new Date()) - pulseValue));
-					console.log("Search process interval:", (config.searchProcessInterval*CONST_SEARCH_PROCESS_PULSE_UPPER_LIMIT_MULTIPLICANT));
+					console.log("Search process interval:", (config.constants.searchProcessInterval*config.constants.maxTimesToRunPerDay));
 				}
 
-				setTimeout(checkSearchProcessPulse, CONST_SEARCH_PROCESS_PULSE_CHECKER_TIMER_VALUE);
+				setTimeout(checkSearchProcessPulse, config.constants.timeMillisecondsCheckTimerValue);
 			});
 		}
 	});

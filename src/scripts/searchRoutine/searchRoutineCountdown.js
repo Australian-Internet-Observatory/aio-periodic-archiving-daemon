@@ -1,5 +1,5 @@
 import ext from '../utils/utilitiesCrossBrowser';
-import { debugAO, CONST_MANIFEST_VERSION_INTEGER } from '../config.js';
+import { LOCAL_DEBUG, CONST_MANIFEST_VERSION_INTEGER } from '../config.js';
 import Alarms from '../alarms.js'
 
 var countDownValidated = true; // This variable enables the countdown to proceed
@@ -39,11 +39,11 @@ function countdownStep(arg_countdownSecondsValue) {
 					if ('serviceWorker' in navigator) {
 						navigator.serviceWorker.register('../../background.js').then(function(registration) {
 							// Registration was successful
-							if (debugAO) { console.log('ServiceWorker registration successful with scope: ', registration.scope); }
+							if (LOCAL_DEBUG) { console.log('ServiceWorker registration successful with scope: ', registration.scope); }
 							intendedRoutine();
 						}, function(err) {
 							// registration failed :(
-							if (debugAO) { console.log('ServiceWorker registration failed: ', err); }
+							if (LOCAL_DEBUG) { console.log('ServiceWorker registration failed: ', err); }
 						});
 					}
 				}
@@ -51,13 +51,13 @@ function countdownStep(arg_countdownSecondsValue) {
 				// Run another step of a second
 				countdownStep(countdownSecondsValue);
 			}
-			// Adjust the frontfacing CSS simultaneously
+			// Adjust the front-facing CSS simultaneously
 			$("#center-count").html(countdownSecondsValue/CONST_COUNTDOWN_INTERVAL_MILLISECONDS_VALUE);
 			$("#spinner-count").addClass("anim"+String(10-countdownSecondsValue/CONST_COUNTDOWN_INTERVAL_MILLISECONDS_VALUE));
 			$("#filler-count").addClass("anim"+String(10-countdownSecondsValue/CONST_COUNTDOWN_INTERVAL_MILLISECONDS_VALUE));
 			$("#mask-count").addClass("anim"+String(10-countdownSecondsValue/CONST_COUNTDOWN_INTERVAL_MILLISECONDS_VALUE));
 		} else {
-			if (debugAO) { console.log("The countdown has been invalidated...") }
+			if (LOCAL_DEBUG) { console.log("The countdown has been invalidated...") }
 		}
 	},CONST_COUNTDOWN_INTERVAL_MILLISECONDS_VALUE);
 }
@@ -69,7 +69,7 @@ countdownStep();
 	This is the event listener for the countdown "Close" button
 */
 document.getElementById("searchCloseWindowId").addEventListener("click", function() {
-	if (debugAO) { console.log("Closing the window...") }
+	if (LOCAL_DEBUG) { console.log("Closing the window...") }
 	Alarms.searchAlarmKillCountdownTab();
 });
 
@@ -77,7 +77,7 @@ document.getElementById("searchCloseWindowId").addEventListener("click", functio
 	This is the event listener for the countdown "Pause" button
 */
 document.getElementById("searchAlarmPauseId").addEventListener("click", function() {
-	if (debugAO) { console.log("Force-pausing the search alarm...") }
+	if (LOCAL_DEBUG) { console.log("Force-pausing the search alarm...") }
 	// Invalidate the countdown
 	countDownValidated = false;
 	// Force the alarm to pause

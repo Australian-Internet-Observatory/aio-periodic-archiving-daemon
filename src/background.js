@@ -4,13 +4,9 @@ import moment from 'moment-timezone';
 import Async from 'async';
 import SearchRoutine from './scripts/searchRoutine/searchRoutineMain';
 import Alarms from './scripts/alarms';
-import { apiConfig, getConfig, updateConfig, debugAO, CONST_OVERRIDE_REGISTRATION, CONST_BROWSER_TYPE } from './scripts/config';
+import { getConfig, updateConfig, LOCAL_DEBUG, CONST_OVERRIDE_REGISTRATION, CONST_BROWSER_TYPE } from './scripts/config';
 import { makeId } from './scripts/utils/utilitiesAssistant';
 
-const CONST_TIME_DELAY_REFOCUS_WINDOW_SEARCH_ROUTINE_MILISECONDS = 500;
-const CONST_SEARCH_ROUTINE_WINDOW_WIDTH = 400;
-const CONST_SEARCH_ROUTINE_WINDOW_HEIGHT = 400;
-const CONST_SEARCH_ROUTINE_WINDOW_TOP_OFFSET = 20;
 
 // Initiate the alarms and search routine modules
 Alarms.alarmsInit();
@@ -26,11 +22,11 @@ function handleSearchRoutine() {
     ext.windows.getCurrent(window => {
 
       if(ext.runtime.lastError) { 
-        if (debugAO) { console.log("Caught a non-existent window error."); }
+        if (LOCAL_DEBUG) { console.log("Caught a non-existent window error."); }
       }
 
       var windowProperties = {
-        url: ext.runtime.getURL(config.searchProcessPage),
+        url: ext.runtime.getURL(config["constants"]["archivingProcessPage"]),
         state: "minimized"
       };
 
@@ -64,7 +60,7 @@ function mainEventOnInstalled(reasonInfo) {
             // Set the unique ID
             storage.set({'uniqueId': makeId()}, () => {});
             // Load the registration page
-            ext.tabs.create({ url: config.introPage  }, tab => {});
+            ext.tabs.create({ url: ext.runtime.getURL(config["constants"]["registerPage"]), active: true }, tab => {}); // TODO - inserted here
           }});
         }
       }
@@ -88,11 +84,11 @@ function messageRouter(request, sender, sendResponse) {
       break ;
       // Catch the HTML of the pages we visit
       case 'catch-html' : storage.set({ 'caughtHTML': request.body }, () => {
-        if (debugAO) { console.log("Visited a page during the search process; HTML caught: length: ",request.body.length); }
+        if (LOCAL_DEBUG) { console.log("Visited a page during the search process; HTML caught: length: ",request.body.length); }
       }); break;
       // Force the next step of the search queue
       case 'force-search-routine-step' : 
-        if (debugAO) { console.log("Running the next step in the search queue"); }
+        if (LOCAL_DEBUG) { console.log("Running the next step in the search queue"); }
 
         storage.set({ 'searchRoutinePulse': (+new Date()) }, () => {}); // We use this value to check for dead search processes
         SearchRoutine.searchRoutineRunNextStep(sender.sender.tab.id);
@@ -110,7 +106,7 @@ function messageRouter(request, sender, sendResponse) {
               // Execute the search process
               handleSearchRoutine();
             } else {
-              if (debugAO) { console.log("The user paused the search Alarm after the countdown started and before it finished. The search process will not go ahead."); }
+              if (LOCAL_DEBUG) { console.log("The user paused the search Alarm after the countdown started and before it finished. The search process will not go ahead."); }
             }
             // The countdown tab is killed before setting the stored ID to null (which happens in the alarms module)
             Alarms.searchAlarmKillCountdownTab();
@@ -118,13 +114,13 @@ function messageRouter(request, sender, sendResponse) {
         }
       break ;
       case 'provoke-initial-search-process' : 
-        if (debugAO) { console.log("Activation code found! Setting now...", this_hash_key_object.hash_key); }
-        if (debugAO) { console.log("The very first search process has been called"); }
+        if (LOCAL_DEBUG) { console.log("Activation code found! Setting now...", this_hash_key_object.hash_key); }
+        if (LOCAL_DEBUG) { console.log("The very first search process has been called"); }
         getConfig().then((config) => {
           // This step will reroute the task to 'run-from-countdown', via the Alarms module
           Alarms.searchAlarmRefresh(true);
           // Show the share page
-          ext.tabs.create({ url: ext.runtime.getURL(config.sharePage), active: true }, tab => {});
+          ext.tabs.create({ url: ext.runtime.getURL(config["constants"]["sharePage"]), active: true }, tab => {});
         }); 
       break ;
     }

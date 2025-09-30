@@ -1,13 +1,13 @@
 {
-  "name": "australianSearchExperience",
+  "name": "periodicArchivingDaemon",
   "version": "1.0.0",
-  "description": "The Australian Search Experience plugin assists research that will improve collective understandings of contemporary search engines.",
+  "description": "The Periodic Archiving Daemon empowers web-archiving research, by enabling participants to use their web browsers to periodically archive websites.",
   "scripts": {
     "chrome-build": "cross-env TARGET=chrome gulp",
     "opera-build": "cross-env TARGET=opera gulp",
     "firefox-build": "cross-env TARGET=firefox gulp",
     "buildmv2": "cross-env NODE_ENV=production NODE_MV=2 npm run opera-build && cross-env NODE_ENV=production NODE_MV=2 npm run firefox-build",
-    "buildmv3": "cross-env NODE_ENV=production NODE_MV=3 npm run chrome-build --experimental-module",
+    "buildmv3": "cross-env TARGET=chrome NODE_ENV=development NODE_MV=3 gulp build",
     "chrome-watch": "cross-env TARGET=chrome gulp watch",
     "opera-watch": "cross-env TARGET=opera gulp watch",
     "firefox-watch": "cross-env TARGET=firefox gulp watch",
@@ -18,13 +18,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/qut-dmrc/australianSearchExperience"
+    "url": "https://github.com/Australian-Internet-Observatory/aio-periodic-archiving-daemon"
   },
   "author": "Abdul Karim Obeid <aisjerfd@gmail.com> (https://github.com/askoj)",
   "bugs": {
-    "url": "https://github.com/qut-dmrc/australianSearchExperience/issues"
+    "url": "https://github.com/Australian-Internet-Observatory/aio-periodic-archiving-daemon/issues"
   },
-  "homepage": "https://www.admscentre.org.au/searchexperience",
+  "homepage": "https://internetobservatory.org.au/periodic-archiving-daemon",
   "devDependencies": {
     "@babel/core": "^7.14.6",
     "@babel/plugin-transform-runtime": "^7.14.5",
@@ -33,6 +33,7 @@
     "babel-core": "^6.26.3",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
+    "chokidar": "^3.6.0",
     "core-js": "^3.14.0",
     "cross-env": "^7.0.3",
     "deasync": "^0.1.21",
@@ -59,6 +60,7 @@
     "uglifyjs-webpack-plugin": "^1.1.2",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",
+    "watchpack": "^2.4.4",
     "webpack": "^4.46.0"
   },
   "dependencies": {
@@ -69,8 +71,10 @@
     "math": "^0.0.3",
     "mhtml2html": "3.0.0",
     "moment-timezone": "^0.5.33",
-    "node-gyp": "^7.1.2",
     "python2": "0.0.1",
     "random-id": "^1.0.4"
+  },
+  "overrides": {
+    "node-gyp": "^11.4.1"
   }
 }

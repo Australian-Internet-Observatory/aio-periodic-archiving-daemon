@@ -1,5 +1,5 @@
 import ext from './utils/utilitiesCrossBrowser';
-import { getConfig, debugAO, CONST_OVERRIDE_REGISTRATION, CONST_MANIFEST_VERSION_INTEGER } from './config';
+import { getConfig, LOCAL_DEBUG, CONST_OVERRIDE_REGISTRATION, CONST_MANIFEST_VERSION_INTEGER } from './config';
 import storage from './utils/utilitiesStorage';
 import { renderNormaliseClockValue } from './utils/utilitiesAssistant';
 import moment from 'moment-timezone';
@@ -66,7 +66,7 @@ function loadPageRegistered() {
   renderTestRunButtonStatus();
   // Pressing the 'About this project' link directs the user to the introductory webpage
   $("#buttonAboutProjectRegistered").click(() => {
-    getConfig().then((config) => { ext.tabs.create({ url: config.landingPage }); });
+    getConfig().then((config) => { ext.tabs.create({ url: config["constants"]["learnMorePage"] }); });
   });
   // If the user presses the 'Test run' button...
   $("#buttonRunSearchProcessRegistered").click(() => {
@@ -109,11 +109,11 @@ function loadPageUnregistered() {
   $("#containerUnregistered").collapse("show");
   // Pressing the 'About this project' link directs the user to the introductory webpage
   $("#buttonAboutProjectUnregistered").click(() => {
-    getConfig().then((config) => { ext.tabs.create({ url: config.landingPage }); });
+    getConfig().then((config) => { ext.tabs.create({ url: config["constants"]["learnMorePage"] }); });
   });
   // Pressing the 'Register' link directs the user to the registration webpage
   $("#buttonRegisterPluginUnregistered").click(() => {
-    getConfig().then((config) => { ext.tabs.create({ url: config.registerPage }); });
+    getConfig().then((config) => { ext.tabs.create({ url: config["constants"]["registerPage"] }); });
   });
 }
 
@@ -128,7 +128,7 @@ function init() {
     storage.get('hash_key', (this_hash_key_object)=>{
       getConfig().then((config) => { 
         const currentTime = moment().tz(moment.tz.guess());
-        if (moment(config.startDate).isBefore(currentTime) && moment(config.endDate).isAfter(currentTime)) {
+        if (moment(config["constants"]["startDate"]).isBefore(currentTime) && moment(config["constants"]["endDate"]).isAfter(currentTime)) {
           if (this_hash_key_object.hash_key) {
             // Show the page intended for registered versions
             loadPageRegistered();
@@ -155,11 +155,11 @@ function init() {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('../background.js').then(function(registration) {
           // Registration was successful
-          if (debugAO) { console.log('ServiceWorker registration successful with scope: ', registration.scope); }
+          if (LOCAL_DEBUG) { console.log('ServiceWorker registration successful with scope: ', registration.scope); }
           intendedRoutine();
         }, function(err) {
           // registration failed :(
-          if (debugAO) { console.log('ServiceWorker registration failed: ', err); }
+          if (LOCAL_DEBUG) { console.log('ServiceWorker registration failed: ', err); }
         });
       });
     }

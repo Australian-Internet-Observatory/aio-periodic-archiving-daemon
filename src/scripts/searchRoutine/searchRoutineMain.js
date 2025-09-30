@@ -1,7 +1,7 @@
 import ext from '../utils/utilitiesCrossBrowser';
 import storage from '../utils/utilitiesStorage';
 import { shuffleArray } from '../utils/utilitiesAssistant';
-import { apiConfig, debugAO, getConfig, CONST_BROWSER_TYPE, CONST_MANIFEST_VERSION_INTEGER, CONST_BROWSER_TOGGLE_FORCE } from '../config';
+import { LOCAL_DEBUG, getConfig, CONST_BROWSER_TYPE, CONST_MANIFEST_VERSION_INTEGER, CONST_BROWSER_TOGGLE_FORCE } from '../config';
 import moment from 'moment-timezone';
 import { 
   makeId,
@@ -26,6 +26,21 @@ import {
   customFlagBehaviourRecursePositive,
   customFlagBehaviourRecurseNegative } from '../utils/utilitiesAssistant';
 
+
+var cachedConfig = null;
+
+/*
+  This function prematurely loads in the config and caches it so that it may be used in strictly synchronous settings
+*/
+function loadAndCacheConfig() {
+  return new Promise((resolve) => {
+    cachedConfig = getConfig();
+    resolve(cachedConfig);
+  });
+}
+
+loadAndCacheConfig();
+
 const reserved = [
       "_i",
       "_object",
@@ -35,16 +50,6 @@ const reserved = [
 
 var previousStateOfSearchRoutine = '';
 var ephemeralSearchRoutineElapsedTime;
-
-const CONST_SEARCH_TOGGLE_INTERFACES = [
-  'desktop',
-  'mobile_iphone12pro',
-  'mobile_galaxyS5'
-]
-
-const CONST_TIME_BEFORE_SEARCH_ROUTINE_QUEUE_STARTS_MILLISECONDS = 2000;
-const CONST_TIME_BEFORE_SEARCH_ROUTINE_QUEUE_ELEMENT_LOADS_DOWN_MILLISECONDS = 61000;///10000;  //TODO Depreciated
-const CONST_TIME_BEFORE_SEARCH_ROUTINE_QUEUE_ELEMENT_LOADS_UP_MILLISECONDS = 61000;//2000; 
 
 var CONST_REGEX_CUSTOM_FLAGS = {
   "DESLASH" : [customFlagStandardBehaviourPositive, customFlagStandardBehaviourNegative],
@@ -121,9 +126,9 @@ function checkTabWindowFailsafe(windowId) {
   safelyExecuteOnWindow(windowId).then((successWindow)=>{
     if (successWindow) {
       ext.tabs.query({ "windowId" : windowId }, (result) => {
-        if (debugAO) { console.log("Indexing the tabs of the current search process window:", result); }
+        if (LOCAL_DEBUG) { console.log("Indexing the tabs of the current search process window:", result); }
         if (result.length > CONST_MAX_NUMBER_OF_TABS_IN_SEARCH_PROCESS_WINDOW) {
-          if (debugAO) { console.log("Ending the search process early due to disallowed tab creation."); }
+          if (LOCAL_DEBUG) { console.log("Ending the search process early due to disallowed tab creation."); }
           searchRoutineCleanUp();
         }
       });
@@ -135,11 +140,11 @@ function checkTabWindowFailsafe(windowId) {
   This function prevents users from accessing the search routine page when an instance is not running
 */
 function mediateSearchRoutine() {
-  if (debugAO) { console.log("A search process window has just opened; determining if it has been duly called..."); }
+  if (LOCAL_DEBUG) { console.log("A search process window has just opened; determining if it has been duly called..."); }
   // Get all tabs that have the desired URL...
   getConfig().then((config) => {
-    ext.tabs.query({ "url" : ext.runtime.getURL(config.searchProcessPage) }, (tabManagerObject) => {
-      if (debugAO) { console.log(`There are currently ${tabManagerObject.length} tabs that are of the search process kind`); }
+    ext.tabs.query({ "url" : ext.runtime.getURL(config["constants"]["archivingProcessPage"]) }, (tabManagerObject) => {
+      if (LOCAL_DEBUG) { console.log(`There are currently ${tabManagerObject.length} tabs that are of the search process kind`); }
       var searchRoutineReferenceObject = null;
       storage.get("searchRoutineReferenceObject", (result) => {
         if (("searchRoutineReferenceObject" in result) && (result.searchRoutineReferenceObject != null)) {
@@ -165,7 +170,7 @@ function mediateSearchRoutine() {
             }
           }
         });
-        if (debugAO) { console.log(`Attempted removal of ${tabsRemoved} tabs`); }
+        if (LOCAL_DEBUG) { console.log(`Attempted removal of ${tabsRemoved} tabs`); }
       });
     });
   });
@@ -175,6 +180,7 @@ function mediateSearchRoutine() {
   This function begins the search routine, by organising all the alarms for the future events
 */
 function searchRoutineBegin(config, argWindowId, argTabId, argPluginInstanceId) {
+  const CONST_SEARCH_TOGGLE_INTERFACES = Object.keys(config.userAgentTypes);
   // Before the new search routine begins, the plugin checks if there is a preexisting search routine; if so,
   // it runs searchRoutineCleanUp, waits for its completion, and then starts
   searchRoutineCleanUp().then(()=>{
@@ -208,25 +214,19 @@ function searchRoutineBegin(config, argWindowId, argTabId, argPluginInstanceId) 
 
       //searchRoutineReferenceObject["interfaceToggle"] = CONST_SEARCH_TOGGLE_INTERFACES[0]; // TODO Diagnostics
       // Set the persistent value for long-term reference
-      if (debugAO) { console.log(`Beginning a search process of '${searchRoutineReferenceObject["interfaceToggle"]}' type...`); }
+      if (LOCAL_DEBUG) { console.log(`Beginning a search process of '${searchRoutineReferenceObject["interfaceToggle"]}' type...`); }
       storage.set({ 'ephemeralSearchRoutineElapsedTime': (new Date().getTime() / 1000) }, () => {});
       // Set the selectors in preparation for the search process
       searchRoutineReferenceObject["selectorsType"] = `selectors_${searchRoutineReferenceObject["interfaceToggle"]}`; 
       storage.set({'interfaceToggle': searchRoutineReferenceObject["interfaceToggle"] }, () => {});
-      // The alarm beginning value is the current time plus a few seconds
-      var alarmSettingCumulative = searchRoutineReferenceObject["timeOfInitiationUNIX"] + CONST_TIME_BEFORE_SEARCH_ROUTINE_QUEUE_STARTS_MILLISECONDS;
       // Create a shuffled routine to improve data acquisition for arbitrary search instance drop-offs...
-      var shuffled_selectors = shuffleArray(config[searchRoutineReferenceObject["selectorsType"]]);
-      var shuffled_keywords = shuffleArray(config["keywords"])
+      var shuffled_selectors = shuffleArray(config["scraper"][searchRoutineReferenceObject["selectorsType"]]);
+      var shuffled_keywords = shuffleArray(config["scraper"]["keywords"])
       // For every interface, keyword, and load type, generate a queue element
 
       for (var selectorElement_i = 0; selectorElement_i < shuffled_selectors.length; selectorElement_i ++) {
         for (var keywordElement_i = 0; keywordElement_i < shuffled_keywords.length; keywordElement_i ++) {
           for (var loadType_i = 0; loadType_i < 2; loadType_i ++) {
-            // Cumulatively set the alarm times
-            alarmSettingCumulative += (Boolean(loadType_i) ? 
-              CONST_TIME_BEFORE_SEARCH_ROUTINE_QUEUE_ELEMENT_LOADS_DOWN_MILLISECONDS : 
-              CONST_TIME_BEFORE_SEARCH_ROUTINE_QUEUE_ELEMENT_LOADS_UP_MILLISECONDS);
             // Generate all members of the queue
             searchRoutineReferenceObject["searchRoutineQueueSettings"].push({
               "id" : makeId(),
@@ -234,46 +234,37 @@ function searchRoutineBegin(config, argWindowId, argTabId, argPluginInstanceId) 
               "platform" : shuffled_selectors[selectorElement_i]["platform"],
               "interface" : searchRoutineReferenceObject["interfaceToggle"],
               "keyword" : shuffled_keywords[keywordElement_i],
-              "loadType" : (Boolean(loadType_i) ? "loadDown" : "loadUp"),
-              "alarmSetting" : alarmSettingCumulative
+              "loadType" : (Boolean(loadType_i) ? "loadDown" : "loadUp")
             });
           }
         }
       }
 
-      /* TODO Remove preset alarms
-      //Set all upcoming alarms
-      for (var alarmSetting_i = 0; alarmSetting_i < searchRoutineReferenceObject["searchRoutineQueueSettings"].length; alarmSetting_i ++) {
-        // Only the 'when' parameter is set, as the alarm only runs once
-        ext.alarms.create(
-          searchRoutineReferenceObject["searchRoutineQueueSettings"][alarmSetting_i]["id"], 
-          { when: searchRoutineReferenceObject["searchRoutineQueueSettings"][alarmSetting_i]["alarmSetting"] });
-        // Indicate the alarm that ends the search routine
-        if (alarmSetting_i == (searchRoutineReferenceObject["searchRoutineQueueSettings"].length-1)) {
-          searchRoutineReferenceObject["searchRoutineQueueEndingAlarm"] = searchRoutineReferenceObject["searchRoutineQueueSettings"][alarmSetting_i]["id"];
-        }
-      }*/
 
-      // Action the first entry
-      var searchRoutineQueuePositionStart = 0;
-      storage.set({ 'searchRoutineQueuePosition': searchRoutineQueuePositionStart }, () => {
-        storage.set({ 'searchRoutinePulse': (+new Date()) }, () => {
-          searchRoutineAlarmAction(
-          searchRoutineReferenceObject, 
-          searchRoutineReferenceObject["searchRoutineQueueSettings"][searchRoutineQueuePositionStart]["id"], 
-          searchRoutineReferenceObject["searchRoutineQueueSettings"][searchRoutineQueuePositionStart]);
-        }); // We use this value to check for dead search processes
-      });
-      // Set the ending alarm
-      searchRoutineReferenceObject["searchRoutineQueueEndingAlarm"] = searchRoutineReferenceObject["searchRoutineQueueSettings"][(searchRoutineReferenceObject["searchRoutineQueueSettings"].length-1)]["id"];
-      
-      
+      if (searchRoutineReferenceObject["searchRoutineQueueSettings"].length > 0) {
+        // Action the first entry
+        var searchRoutineQueuePositionStart = 0;
+        storage.set({ 'searchRoutineQueuePosition': searchRoutineQueuePositionStart }, () => {
+          storage.set({ 'searchRoutinePulse': (+new Date()) }, () => {
+            searchRoutineAlarmAction(
+            searchRoutineReferenceObject, 
+            searchRoutineReferenceObject["searchRoutineQueueSettings"][searchRoutineQueuePositionStart]["id"], 
+            searchRoutineReferenceObject["searchRoutineQueueSettings"][searchRoutineQueuePositionStart]);
+          }); // We use this value to check for dead search processes
+        });
+        // Set the ending alarm
+        searchRoutineReferenceObject["searchRoutineQueueEndingAlarm"] = searchRoutineReferenceObject["searchRoutineQueueSettings"][(searchRoutineReferenceObject["searchRoutineQueueSettings"].length-1)]["id"];
+        
+        
 
 
-      // Set the reference object before inactivity starts
-      storage.set({"searchRoutineReferenceObject": searchRoutineReferenceObject }, () => {});
-      if (debugAO) { console.log("The search routine has been initiated with the following reference object:", searchRoutineReferenceObject); }
-      //searchRoutineInstance(0, _windowId, pluginId, windowRootTabId, callback);
+        // Set the reference object before inactivity starts
+        storage.set({"searchRoutineReferenceObject": searchRoutineReferenceObject }, () => {});
+        if (LOCAL_DEBUG) { console.log("The search routine has been initiated with the following reference object:", searchRoutineReferenceObject); }
+        //searchRoutineInstance(0, _windowId, pluginId, windowRootTabId, callback);
+      } else {
+        searchRoutineCleanUp(); // Finish prematurely
+      }
     });
   });
 }
@@ -282,12 +273,12 @@ function searchRoutineBegin(config, argWindowId, argTabId, argPluginInstanceId) 
   This runs the next action in the search routine 
 */
 function searchRoutineRunNextStep(callerTabId) {
-  if (debugAO) {
+  if (LOCAL_DEBUG) {
     console.log("Attempting next step");
   }
   // Get the queue position...
   storage.get("searchRoutineQueuePosition", (result) => {
-    if (debugAO) {
+    if (LOCAL_DEBUG) {
       console.log("searchRoutineQueuePosition", result.searchRoutineQueuePosition);
     }
     var alarm_i = result.searchRoutineQueuePosition;
@@ -311,7 +302,7 @@ function searchRoutineRunNextStep(callerTabId) {
         });
       } else {
         // Otherwise, there is no search routine to index
-        if (debugAO) {
+        if (LOCAL_DEBUG) {
           console.log("The search process is still attempting to step after the searchRoutineReferenceObject has been wiped. This is caused by user intervention. Forcing a backdoor cleanup now...");
           safelyRemoveTab(callerTabId);
           searchRoutineBackdoorCleanUp();
@@ -350,7 +341,7 @@ function searchRoutineAlarmAction(argSearchRoutineReferenceObject, searchRoutine
                 searchRoutineThisQueueSettingsObject["keyword"], 
                 searchRoutineThisQueueSettingsObject["platform"], 
                 searchRoutineThisQueueSettingsObject["interface"]);
-              if (debugAO) { console.log("Executing a 'load up' event on the current search routine; URL is ", simulatedURL.url); }
+              if (LOCAL_DEBUG) { console.log("Executing a 'load up' event on the current search routine; URL is ", simulatedURL.url); }
               // If the URL did not generate an error...
               if (simulatedURL.error == null) {
                 // Create the tab in the designated search routine window
@@ -374,30 +365,30 @@ function searchRoutineAlarmAction(argSearchRoutineReferenceObject, searchRoutine
                         // Record the tab ID by reinserting the object back into itself
                         searchRoutineReferenceObject["searchRoutineQueueSettings"][i]["tabId"] = searchRoutineThisQueueSettingsObject["tabId"];
                         storage.set({ "searchRoutineReferenceObject" : searchRoutineReferenceObject }, (outcome) => {
-                          if (debugAO) { console.log("The search routine has duly identified the tab for this event:", searchRoutineReferenceObject); }
+                          if (LOCAL_DEBUG) { console.log("The search routine has duly identified the tab for this event:", searchRoutineReferenceObject); }
                         });
                       }
                     }
                   } else {
                     // We have to end early in case of a tab creation error TODO test
-                    if (debugAO) { console.log("The search process is ending due to a tab creation error."); }
+                    if (LOCAL_DEBUG) { console.log("The search process is ending due to a tab creation error."); }
                     searchRoutineAlarmActionCallback(searchRoutineReferenceObject, searchRoutineQueueSettingsAlarmId, thisOutcomeObject, null, true);
                   }
                 });
               } else {
                 // We have to end early if the generated URL is not well-formed TODO test
-                if (debugAO) { console.log("The search process is ending due to a malformed URL."); }
+                if (LOCAL_DEBUG) { console.log("The search process is ending due to a malformed URL."); }
                 searchRoutineAlarmActionCallback(searchRoutineReferenceObject, searchRoutineQueueSettingsAlarmId, thisOutcomeObject, null, true);
               }
             // Otherwise, if we are loading down a page we just visited...
             } else if (searchRoutineThisQueueSettingsObject["loadType"] == "loadDown") {
-              if (debugAO) { console.log("Executing a 'load down' event on the current search routine"); }
+              if (LOCAL_DEBUG) { console.log("Executing a 'load down' event on the current search routine"); }
               // Inject the script that will retrieve the HTML of the page
               try {
                 storage.get('caughtHTML', (result)=>{
                   // Find the selectors that are specific to this interface and platform
                   var thisSelectors = null;
-                  var candidateSelectors = config[`selectors_${searchRoutineThisQueueSettingsObject["interface"]}`];
+                  var candidateSelectors = config["scraper"][`selectors_${searchRoutineThisQueueSettingsObject["interface"]}`];
                   for (var i = 0; i < candidateSelectors.length; i ++) {
                     if (candidateSelectors[i]["platform"] == searchRoutineThisQueueSettingsObject["platform"]) {
                       thisSelectors = candidateSelectors[i];
@@ -418,12 +409,12 @@ function searchRoutineAlarmAction(argSearchRoutineReferenceObject, searchRoutine
                     }
                     // If the selectors were found...
                     if (thisSelectors != null) {
-                      if (debugAO) { 
+                      if (LOCAL_DEBUG) { 
                         console.log("The HTML of the page has returned:");
                         console.log({ "sanitisedHTML" : sanitisedHTML }); }
                       // Retrieve the evaluated results from the HTML
                       var results = evaluateHTML(thisSelectors,sanitisedHTML);
-                      if (debugAO) { console.log("A result has been returned:", results); }
+                      if (LOCAL_DEBUG) { console.log("A result has been returned:", results); }
                       // Remove the tab of the page we just visited
                       safelyRemoveTab(searchRoutineThisQueueSettingsObject["tabId"]);
                       if (!(ext.runtime.lastError || results === undefined)) {
@@ -439,24 +430,24 @@ function searchRoutineAlarmAction(argSearchRoutineReferenceObject, searchRoutine
                           });
                       } else {
                         // Otherwise, we have to end early as the results are undefined, or the runtime error occurred TODO test
-                        if (debugAO) { console.log("The search process is ending due because the search results are not well-defined OR there is a runtime error."); }
+                        if (LOCAL_DEBUG) { console.log("The search process is ending due because the search results are not well-defined OR there is a runtime error."); }
                         searchRoutineAlarmActionCallback(searchRoutineReferenceObject, searchRoutineQueueSettingsAlarmId, thisOutcomeObject, null, true);
                       }
                     }else {
                       // Otherwise, we have to end early as the selectors were not found TODO test
-                      if (debugAO) { console.log("The search process is ending because the selectors were not found."); }
+                      if (LOCAL_DEBUG) { console.log("The search process is ending because the selectors were not found."); }
                       searchRoutineAlarmActionCallback(searchRoutineReferenceObject, searchRoutineQueueSettingsAlarmId, thisOutcomeObject, null, true);
                     }
                   } else {
                     // Otherwise, we have to end early as the HTML was not returned to us
-                    if (debugAO) { console.log("The search process is ending as no HTML was returned."); }
+                    if (LOCAL_DEBUG) { console.log("The search process is ending as no HTML was returned."); }
                     searchRoutineAlarmActionCallback(searchRoutineReferenceObject, searchRoutineQueueSettingsAlarmId, thisOutcomeObject, null, true);
                   }
                 });
               } catch (e) {
-                if (debugAO) { console.log(e); }
+                if (LOCAL_DEBUG) { console.log(e); }
                 // The entire process of injecting scripts can be a little indeterminate, so we catch errors and end the process early
-                if (debugAO) { console.log("The search process is ending due to an indeterminate error."); }
+                if (LOCAL_DEBUG) { console.log("The search process is ending due to an indeterminate error."); }
                 searchRoutineAlarmActionCallback(searchRoutineReferenceObject, searchRoutineQueueSettingsAlarmId, thisOutcomeObject, null, true);
               }
             }
@@ -464,7 +455,7 @@ function searchRoutineAlarmAction(argSearchRoutineReferenceObject, searchRoutine
         } else {
           // The root tab does not exist and so the search routine must be ended early
           thisOutcomeObject["didTabExistOnAlarm"] = false;
-          if (debugAO) { console.log("The search process is ending due to the non-existence of the root tab."); }
+          if (LOCAL_DEBUG) { console.log("The search process is ending due to the non-existence of the root tab."); }
           searchRoutineAlarmActionCallback(searchRoutineReferenceObject, searchRoutineQueueSettingsAlarmId, thisOutcomeObject, null, true);
         }
       });
@@ -472,7 +463,7 @@ function searchRoutineAlarmAction(argSearchRoutineReferenceObject, searchRoutine
       // The window does not exist; tab existence is also implied as false; the search routine must be ended early
       thisOutcomeObject["didWindowExistOnAlarm"] = false;
       thisOutcomeObject["didTabExistOnAlarm"] = false;
-      if (debugAO) { console.log("The search process is ending due to the non-existence of the root window."); }
+      if (LOCAL_DEBUG) { console.log("The search process is ending due to the non-existence of the root window."); }
       searchRoutineAlarmActionCallback(searchRoutineReferenceObject, searchRoutineQueueSettingsAlarmId, thisOutcomeObject, null, true);
     }
   });
@@ -485,14 +476,14 @@ function searchRoutineAlarmActionCallback(searchRoutineReferenceObject, searchRo
   // Before anything, we attempt to post the results to the server (don't worry, it has a 'null' catcher)
   searchRoutinePostOutcome(results).then((success) =>{
     if (success) {
-      if (debugAO) { console.log("The search routine has executed accordingly."); }
+      if (LOCAL_DEBUG) { console.log("The search routine has executed accordingly."); }
     } else {
-      if (debugAO) { console.log("The search routine did not execute accordingly; failed on post."); }
+      if (LOCAL_DEBUG) { console.log("The search routine did not execute accordingly; failed on post."); }
     }
     storage.get('ephemeralSearchRoutineElapsedTime', (result)=>{
       try {
         if (('ephemeralSearchRoutineElapsedTime' in result) && (result.ephemeralSearchRoutineElapsedTime != null)) {
-          if (debugAO) { console.log(`Search routine finished in ${Math.abs((new Date().getTime() / 1000) - parseFloat(result.ephemeralSearchRoutineElapsedTime))} seconds.`); }
+          if (LOCAL_DEBUG) { console.log(`Search routine finished in ${Math.abs((new Date().getTime() / 1000) - parseFloat(result.ephemeralSearchRoutineElapsedTime))} seconds.`); }
           storage.set({ 'ephemeralSearchRoutineElapsedTime': null}, () => {});
         } 
       } catch (e) {}
@@ -500,13 +491,13 @@ function searchRoutineAlarmActionCallback(searchRoutineReferenceObject, searchRo
     // Then the remaining task are actioned...
     // Run the cleanup if the alarm is recognised as the last in the queue
     if (searchRoutineReferenceObject["searchRoutineQueueEndingAlarm"] == searchRoutineQueueSettingsAlarmId) {
-      if (debugAO) { console.log("Search routine instance has finished with following outcomes:", results); }
+      if (LOCAL_DEBUG) { console.log("Search routine instance has finished with following outcomes:", results); }
       searchRoutineCleanUp();
     }
     // Also run the cleanup if we are finishing early
     if (endingEarly) {
-      if (debugAO) { console.log("Due to user intervention, the search routine is ending early."); }
-      if (debugAO) { console.log("Search routine instance has finished early with following outcomes:", results); }
+      if (LOCAL_DEBUG) { console.log("Due to user intervention, the search routine is ending early."); }
+      if (LOCAL_DEBUG) { console.log("Search routine instance has finished early with following outcomes:", results); }
       searchRoutineCleanUp();
     }
   })
@@ -525,25 +516,29 @@ async function searchRoutinePostOutcome(thisOutcome) {
       storage.get('hash_key', (this_hash_key_object)=>{
         storage.get('uniqueId', function(result){
           getConfig().then(config => {
-            fetch(apiConfig.resultUrl, {
+            fetch(config.apiEndpoints.dispatch, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                "version" : ext.runtime.getManifest().version,
-                "hash_key" : (this_hash_key_object.hash_key ? this_hash_key_object.hash_key : null),
-                "user_agent" : (navigator ? navigator.userAgent : null),
-                "browser" : CONST_BROWSER_TYPE,
-                "keyword" : thisOutcome.keyword,
-                "interface" : thisOutcome.interface,
-                "platform" : thisOutcome.platform,
-                "plugin_id" : (result.uniqueId ? result.uniqueId : null),
-                "time_of_retrieval" : getTimeStamp(),
-                "localisation" : (navigator ? navigator.language : null),
-                "data" : thisOutcome.results,
-                "event" : "collection"
+                "plugin" : {
+                  "software_version" : ext.runtime.getManifest().version
+                },
+                "browser" : {
+                  "type" : CONST_BROWSER_TYPE,
+                  "localisation" : (navigator ? navigator.language : null),
+                  "user_agent_type" : thisOutcome.interface,
+                  "user_agent_raw" : (navigator ? navigator.userAgent : null)
+                },
+                "observation" : {
+                  "query" : thisOutcome.keyword,
+                  "time_of_retrieval" : getTimeStamp(),
+                  "platform" : thisOutcome.platform,
+                  "content" : thisOutcome.results
+                },
+                "observer_uuid" : (this_hash_key_object.hash_key ? this_hash_key_object.hash_key : null)
               })
             }).then(response => {
               resolve(true);
@@ -565,7 +560,7 @@ async function searchRoutineCleanUp() {
     storage.get("searchRoutineReferenceObject", (result) => {
       if (("searchRoutineReferenceObject" in result) && (result.searchRoutineReferenceObject != null)) {
         var searchRoutineReferenceObject = result.searchRoutineReferenceObject;
-        if (debugAO) { console.log("A search routine has been found; preparing to wipe it..."); }
+        if (LOCAL_DEBUG) { console.log("A search routine has been found; preparing to wipe it..."); }
           // Remove all tabs for open searches
           for (var i = 0; i < searchRoutineReferenceObject["searchRoutineQueueSettings"].length; i ++) {
             if (('tabId' in searchRoutineReferenceObject["searchRoutineQueueSettings"][i]) 
@@ -581,14 +576,14 @@ async function searchRoutineCleanUp() {
           // Set the caught HTML to null
           storage.set({ 'caughtHTML': null }, () => {});
         
-        if (debugAO) { console.log("All tabs and windows associated with the search routine have been removed."); }
+        if (LOCAL_DEBUG) { console.log("All tabs and windows associated with the search routine have been removed."); }
         // Wipe the reference object
-        if (debugAO) { console.log("The search routine reference object has been wiped."); }
+        if (LOCAL_DEBUG) { console.log("The search routine reference object has been wiped."); }
         storage.set({"searchRoutineReferenceObject": null }, () => {
           resolve(-1);
         });
       } else {
-        if (debugAO) { console.log("No prior search routine has been found; proceeding..."); }
+        if (LOCAL_DEBUG) { console.log("No prior search routine has been found; proceeding..."); }
         resolve(-1);
       }
     });
@@ -602,9 +597,9 @@ function setURL(config, keyword, platform, browserInterface) {
    var error = null;
    var outputUrl;
    // Firstly determine the URL template by cycling through the config JSON file, and matching the selector
-   for (var i = 0; i < config[`selectors_${browserInterface}`].length; i ++) {
-    if (config[`selectors_${browserInterface}`][i]["platform"] == platform) {
-      outputUrl = config[`selectors_${browserInterface}`][i]["url"];
+   for (var i = 0; i < config["scraper"][`selectors_${browserInterface}`].length; i ++) {
+    if (config["scraper"][`selectors_${browserInterface}`][i]["platform"] == platform) {
+      outputUrl = config["scraper"][`selectors_${browserInterface}`][i]["url"];
     }
    }
    // If the selector was not found, give a note of the error
@@ -629,9 +624,10 @@ function setURL(config, keyword, platform, browserInterface) {
    }
    // Then finally apply the injected query parameters to spoof mobile devices and wipe the page
    if (outputUrl.indexOf("?") == -1) {
-    outputUrl += `?ase_injection_interface=${browserInterface}&ase_injection_wipe=true`;
+
+    outputUrl += `?${config.constants.queryParameterInjectionInterface}=${browserInterface}&${config.constants.queryParameterInjectionWipe}=true`;
    } else {
-    outputUrl += `&ase_injection_interface=${browserInterface}&ase_injection_wipe=true`;
+    outputUrl += `&${config.constants.queryParameterInjectionInterface}=${browserInterface}&${config.constants.queryParameterInjectionWipe}=true`;
    }
    return { "url" : outputUrl, "error" : error }
 }
@@ -731,7 +727,7 @@ function synthesizeItemSet(argDictionary, suppliedHTML) {
       thisReturnData = "Items came back as null";
     }
   } catch (e) {
-    if (debugAO) { console.log("Caught an error at point 6.") }
+    if (LOCAL_DEBUG) { console.log("Caught an error at point 6.") }
     thisReturnData = String(e);
   }
   return thisReturnData;
@@ -776,15 +772,6 @@ function retrieveElemFallback(source, selector_part, item, type) {
             } else {
               // Otherwise, begin the attempt to retrieve the value
               var attempted_retrieved_val;
-              /*/ Depending on the routine, we might be indexing a list or an item of a list, 
-              // and this affects the way the value is interpreted
-              if (type == "list") {
-                // List routine
-                attempted_retrieved_val = rawHTML;
-              } else {
-                // Item routine
-                attempted_retrieved_val = item;
-              }*/
               attempted_retrieved_val = item;
               try {
                 for (var i = 0; i < expressionsToEvaluate.length; i ++) {
@@ -835,13 +822,8 @@ function retrieveElemFallback(source, selector_part, item, type) {
               }
             } 
           } catch (e) {
-            //if (debugAO) { console.log(e); } // Diagnostic
+            // if (LOCAL_DEBUG) { console.log(e); } // Diagnostic
           }
-          /*
-          // If this is an index check, adjust the value
-          if (flagActivationObject["INDEXED"]) {
-              retrieved_val = (retrieved_val != null);
-          }*/
           // Set the element if the retrieved_val variable is acceptable
           if ( (retrieved_val.constructor === Boolean) ||
                (retrieved_val.constructor === String) ||
@@ -863,7 +845,7 @@ function retrieveElemFallback(source, selector_part, item, type) {
           keep_looping = false;
         }
       } catch (e) {
-        //if (debugAO) { console.log(e); } // Diagnostic
+        // if (LOCAL_DEBUG) { console.log(e); } // Diagnostic
         // This kind of error constitutes an issue in the expression evaluation block, and needs to be checked
         elem = String(e);
       }
@@ -888,6 +870,7 @@ function evaluateHTML(selector, rawHTML) {
     if ("items" in selector) {
       // For every key in the selector
       returnData = synthesizeItemSet(selector.items, rawHTML);
+      returnData["rawHTML"] = rawHTML;
     }
   } catch (e) {
     // Do nothing
@@ -901,12 +884,12 @@ function evaluateHTML(selector, rawHTML) {
 function searchRoutineStateChangeListener(state) {
   // If the computer has initiated a screensaver or is locked, perform the cleanup
   if (state === 'locked') { 
-    if (debugAO) { console.log("Cleaning the search routine as the computer is now locked..."); }
+    if (LOCAL_DEBUG) { console.log("Cleaning the search routine as the computer is now locked..."); }
     searchRoutineCleanUp(); 
   }
   // Upon unlocking the computer, the alarm is refreshed
   if (state === 'active' &&  previousStateOfSearchRoutine === 'locked') { 
-    if (debugAO) { console.log("Cleaning the search routine for a state change event..."); }
+    if (LOCAL_DEBUG) { console.log("Cleaning the search routine for a state change event..."); }
     searchRoutineCleanUp();
   }
   // The previous state is always set on state changes
@@ -926,7 +909,7 @@ function searchRoutineInit() {
         for (var i = 0; i < searchRoutineReferenceObject["searchRoutineQueueSettings"].length; i ++) {
           // If so...
           if (searchRoutineReferenceObject["searchRoutineQueueSettings"][i]["id"] == alarm.name) {
-            if (debugAO) { console.log("A search routine queue alarm has been successfully detected:", searchRoutineReferenceObject["searchRoutineQueueSettings"][i]); }
+            if (LOCAL_DEBUG) { console.log("A search routine queue alarm has been successfully detected:", searchRoutineReferenceObject["searchRoutineQueueSettings"][i]); }
             // We action the alarm
             searchRoutineAlarmAction(searchRoutineReferenceObject, alarm.name, searchRoutineReferenceObject["searchRoutineQueueSettings"][i]);
           }
@@ -946,12 +929,12 @@ function searchRoutineInit() {
       if (CONST_BROWSER_TYPE != 'chrome') {
         var overiddenUserAgentString = null;
 
-        if (details.url.indexOf(`ase_injection_interface=mobile_iphone12pro`) != -1) {
-          overiddenUserAgentString = 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 QQ/8.5.0.635 V1_IPH_SQ_8.5.0_1_APP_A Pixel/1170 MiniAppEnable SimpleUISwitch/0 QQTheme/1000 Core/WKWebView Device/Apple(iPhone 12 Pro) NetType/WIFI QBWebViewType/1 WKType/1';
-        }
-
-        if (details.url.indexOf(`ase_injection_interface=mobile_galaxyS5`) != -1) {
-          overiddenUserAgentString = 'Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36';
+        for (var thisUserAgentType in cachedConfig.userAgentTypes) {
+          if (thisUserAgentType != "desktop") {
+            if (details.url.indexOf(`${cachedConfig.constants.queryParameterInjectionInterface}=${thisUserAgentType}`) != -1) {
+              overiddenUserAgentString = cachedConfig.userAgentTypes[thisUserAgentType].user_agent;
+            }
+          }
         }
 
         if (overiddenUserAgentString != null) {
@@ -982,12 +965,12 @@ function searchRoutineBackdoorCleanUp() {
         if (ext.runtime.lastError) {
           // This can happen when the user is dragging the tab; will continue to wait.
         } else {
-          if (debugAO) { console.log("Retained tabs:", result); }
-          if (debugAO) { console.log("Presently open tabs:", result_b); }
+          if (LOCAL_DEBUG) { console.log("Retained tabs:", result); }
+          if (LOCAL_DEBUG) { console.log("Presently open tabs:", result_b); }
           for (var i = 0; i < result_b.length; i ++) {
             if (result.tabIdRetainer.indexOf(result_b[i].id) != -1) {
               safelyRemoveTab(result_b[i].id);
-              if (debugAO) { console.log("Found a bad tab; removing it now..."); }
+              if (LOCAL_DEBUG) { console.log("Found a bad tab; removing it now..."); }
             }
           }
         }

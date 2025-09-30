@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="<!--LANGUAGE-->">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="<!--METADATA_PAGE_DESCRIPTION-->">
+    <meta name="author" content="<!--METADATA_PAGE_AUTHOR-->">
+    <title><!--REGISTER_HEADING--> - <!--PLUGIN_FORMAL_NAME--></title>
+    <link href="../resources/dependencies/bootstrap.min.css" rel="stylesheet">
+    <link href="../resources/branding/styles.css" rel="stylesheet">
+    <link rel="icon" href="<!--FAVICON-->">
+    <link rel="apple-touch-icon" sizes="180x180" href="<!--FAVICON_APPLE_TOUCH-->">
+		<link rel="icon" type="image/png" sizes="32x32" href="<!--FAVICON_32x-->">
+		<link rel="icon" type="image/png" sizes="16x16" href="<!--FAVICON_16x-->">
+		<link rel="manifest" href="<!--FAVICON_WEBMANIFEST-->">
+		<style>
+			.logo-institutional { background-image: url(<!--INSTITUTIONAL_LOGO_FILE-->); }
+			.icon-plugin-register { background-image: url(<!--REGISTER_PLUGIN_LOGO_FILE-->); }
+			.icon-plugin-registered { background-image: url(<!--REGISTERED_LOGO_FILE-->); }
+			.icon-plugin-error { background-image: url(<!--ERROR_LOGO_FILE-->); }
+		</style>
+  </head>
+  <body class="bg-dark dark-bkg">
+		<div class="row px-0 mx-0 top-band"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-light pt-4 pb-4">
+      <a class="navbar-brand custom-link" href="<!--URL_BRANDING-->" target="_blank">
+				<div class="row">
+					<div class="col pe-0 me-0"><div class="pt-5 pb-4 logo-institutional"></div></div>
+					<div class="col px-0 mx-0"><h1 style="color: black !important;"><!--PLUGIN_FORMAL_NAME--></h1></div>
+				</div>
+      </a>
+    </nav>
+	  <div id="container-loading" class="container collapse show">
+	    <div class="row mb-4 my-5 py-5">
+	      <div class="col-md-12 d-flex justify-content-center">
+		      <div class="loader"></div>
+		    </div>
+				<h2 class="mt-4 text-center"><!--PAGE_AGNOSTIC_LOADING_HEADING--></h2>
+	    </div>
+	  </div>
+	  <div id="container-registered" class="container collapse hide">
+	    <div class="row mb-4 my-5 py-5">
+	      <div class="col-md-12 d-flex justify-content-center">
+	        <div class="icon-plugin icon-plugin-registered"></div>
+	      </div>
+				<h2 class="mt-2 text-center"><!--REGISTERED_HEADING--></h2>
+				<p class="lead text-center"><!--REGISTERED_LEAD--></p>
+	    </div>
+	  </div>
+	  <div id="container-error" class="container collapse hide">
+	    <div class="row mb-4 my-5 py-5">
+	      <div class="col-md-12 d-flex justify-content-center">
+	        <div class="icon-plugin icon-plugin-error"></div>
+	      </div>
+				<h2 class="mt-2 text-center"><!--ERROR_HEADING--></h2>
+				<p class="lead text-center"><!--ERROR_LEAD--></p>
+	    </div>
+	  </div>
+		<div id="container-register" class="container collapse hide">
+	    <div class="row mt-5 pt-5">
+		    <div class="col-md-12 d-flex justify-content-center">
+		      <div class="icon-plugin icon-plugin-register"></div>
+		    </div>
+		  </div>
+			<div class="pt-2 pb-4 text-center">
+				<h2 class="mb-4"><!--REGISTER_HEADING--></h2>
+				<p class="lead"><!--REGISTER_LEAD--></p>
+				<p class="lead">
+					<div class="d-inline-flex align-items-center">
+						<span><a href="<!--URL_LEARN_MORE-->" target="_blank"><!--REGISTER_LEARN_MORE_TEXT--></a></span>
+						<div class="vr mx-3"></div>
+						<span><a href="<!--URL_PRIVACY_POLICY-->" target="_blank"><!--REGISTER_PRIVACY_POLICY_TEXT--></a> </span>
+					</div>
+				</p>
+				<div class="row">
+					<form id="registrationSubmitForm">
+						<div class="container my-4" id="demographics-container">
+							<div class="row gy-3">
+
+									<!-- Demographic Details Begin -->
+
+									<div class="col-md-4">
+										<label for="age" class="form-label">Age</label>
+										<input type="number" class="form-control demographic-field" name="age" min="0" max="120" step="1" placeholder="e.g., 35" required>
+									</div>
+
+									<div class="col-md-4">
+										<label for="gender" class="form-label">Gender</label>
+										<select class="form-select demographic-field" name="gender" required>
+											<option value="" selected disabled>Choose...</option>
+											<option value="female">Female</option>
+											<option value="male">Male</option>
+											<option value="non-binary">Non-binary</option>
+											<option value="prefer-not-to-say">Prefer not to say</option>
+											<option value="other">Other</option>
+										</select>
+									</div>
+
+									<div class="col-md-4">
+										<label for="postcode" class="form-label">Postcode</label>
+										<input type="text" class="form-control demographic-field" name="postcode" inputmode="numeric" pattern="^\d{4}$" maxlength="4" placeholder="e.g., 4000" title="Enter a 4-digit Australian postcode" required>
+									</div>
+
+									<div class="col-md-6">
+										<label for="politicalPref" class="form-label">Political Preference</label>
+										<select class="form-select demographic-field" name="political_preference" required>
+											<option value="" selected disabled>Choose...</option>
+											<option value="alp">Australian Labor Party</option>
+											<option value="liberal">Liberal Party of Australia</option>
+											<option value="nationals">The Nationals</option>
+											<option value="greens">The Greens</option>
+											<option value="one-nation">Pauline Hanson’s One Nation</option>
+											<option value="uap">United Australia Party</option>
+											<option value="independent">Independent</option>
+											<option value="other">Other</option>
+											<option value="prefer-not-to-say">Prefer not to say</option>
+										</select>
+									</div>
+
+									<div class="col-md-6">
+										<label for="income" class="form-label">Annual Income Bracket</label>
+										<select class="form-select demographic-field" name="income_bracket" required>
+											<option value="" selected disabled>Choose...</option>
+											<option value="lt-30k">&lt; $30,000</option>
+											<option value="30-50k">$30,000 – $49,999</option>
+											<option value="50-75k">$50,000 – $74,999</option>
+											<option value="75-100k">$75,000 – $99,999</option>
+											<option value="100-150k">$100,000 – $149,999</option>
+											<option value="150-200k">$150,000 – $199,999</option>
+											<option value="200k-plus">$200,000+</option>
+											<option value="prefer-not-to-say">Prefer not to say</option>
+										</select>
+									</div>
+
+									<div class="col-12">
+										<label for="education" class="form-label">Highest Education Level</label>
+										<select class="form-select demographic-field" name="education_level" required>
+											<option value="" selected disabled>Choose...</option>
+											<option value="no-formal">No formal schooling</option>
+											<option value="year10">Completed Year 10 (or equivalent)</option>
+											<option value="year12">Completed Year 12 (or equivalent)</option>
+											<option value="cert-i-iv">Certificate I–IV (VET/TAFE)</option>
+											<option value="diploma">Diploma (AQF 5)</option>
+											<option value="adv-diploma-assoc-degree">Advanced Diploma / Associate Degree (AQF 6)</option>
+											<option value="bachelor">Bachelor Degree (AQF 7)</option>
+											<option value="grad-cert-dip">Graduate Certificate / Graduate Diploma (AQF 8)</option>
+											<option value="masters">Master’s Degree (AQF 9)</option>
+											<option value="doctorate">Doctoral Degree (AQF 10)</option>
+										</select>
+									</div>
+
+									<!-- Demographic Details End -->
+
+							</div>
+							<div class="row gy-3">
+								<div class="col-12 pt-5">
+									<button class="btn btn-primary btn-lg btn-primary-alt" type="submit"><!--REGISTER_BUTTON_SUBMIT_TEXT--></button>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="row centered-content mb-5">
+				<a class="custom-link" href="<!--URL_BRANDING-->" target="_blank">
+					<img class="d-block mx-auto mb-2" src="<!--INSTITUTIONAL_LOGO_FILE_BW_TRANSPARENT-->" alt="" width="284">
+				</a>
+			</div>
+		</div>
+		<script src="../resources/dependencies/jquery.min.js"></script>
+    <script src="../resources/dependencies/popper.min.js"></script>
+    <script src="../resources/dependencies/bootstrap.bundle.min.js"></script>
+    <script src="../resources/dependencies/holder.min.js"></script>
+		<script src="../scripts/registrationRoutine/registrationSubmit.js"></script>
+  </body>
+</html>

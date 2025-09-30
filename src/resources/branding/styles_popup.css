@@ -1,0 +1,154 @@
+* {
+	scrollbar-width: none;
+}
+
+body {
+	margin: 0;
+}
+
+.popup {
+	width: 350px;
+	min-height: 100px;
+	background-color: rgb(21, 22, 23) !important;
+}
+
+.banner {
+	height: 90px;
+	background-color: white;
+}
+
+
+.banner-logo {
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.banner-text {
+	display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'RobotoSemiCondensed';
+    color: black;
+}
+
+.status-border {
+    border: 2px solid #17bd72;
+    width: auto;
+    height: auto;
+}
+
+.status-border.neg {
+	border: 2px solid #a62d3b;
+}
+
+.status-logo {
+	width: 35px;
+	height: 35px;
+	background-image: url(./../misc/icon_tick_green.png);
+	background-position: 10px 9px;
+    background-size: 18px 18px;
+    background-repeat: no-repeat;
+    float: left;
+    margin-left: -10px;
+}
+
+.status-logo.neg {
+	background-image: url(./../misc/icon_cross_red.png);
+}
+
+.status-text {
+    font-family: 'RobotoSemiCondensed';
+    height: 36px;
+    color: #0be683;
+    align-items: center;
+    display: flex;
+    font-size: 0.8rem;
+    float: left;
+}
+
+.status-text.bold {
+    font-family: 'RobotoMedium';
+}
+
+.status-text.neg {
+    color: #f55b6d;
+}
+
+.status-text.bold.neg {
+    color: #f55b6d;
+}
+
+.link-text {
+	font-size: 0.8rem;
+}
+
+button {
+	display: inline-block;
+	font-size: 0.9rem !important;
+	width: 202px !important;
+}
+
+.disabled {
+	pointer-events: none;
+}
+
+
+.container-loading {
+	width: 100%;
+	height: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.collapse {
+	width: 100% !important;
+}
+
+.unpause-status {
+	width: 100%;
+    background-color: black;
+    border-radius: 2px;
+}
+
+.unpause-label-b {
+	color: white;
+	font-size: 0.7rem !important;
+}
+
+.unpause-timer {
+	font-size: 2rem;
+    color: white;
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.5rem;
+}
+
+.unpause-timer-container {
+	width: 100%;
+}
+
+.popup-ending-text {
+	font-size: 0.7rem !important;
+    color: rgb(255, 139, 77);
+    text-align: center;
+}
+
+.text-yellow-in-popup {
+	font-size: 0.7rem !important;
+    color: rgb(255, 227, 79);
+    text-align: center;
+}
+
+.popup-ending-image {
+	width: 100%;
+	height: 60px;
+	background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.logo-institutional-alt {
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}

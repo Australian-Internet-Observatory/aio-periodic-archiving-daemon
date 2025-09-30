@@ -1,0 +1,232 @@
+{
+	"configURL" : "https://aio-pad-public-bucket.s3.ap-southeast-2.amazonaws.com/NULL.json",
+	"apiEndpoints" : {
+		"demographic" : "https://aoehfxe46e2e3nqfgb7igunpq40iabdd.lambda-url.ap-southeast-2.on.aws/",
+		"dispatch" : "https://aoehfxe46e2e3nqfgb7igunpq40iabdd.lambda-url.ap-southeast-2.on.aws/"
+	},
+	"constants" : {
+		"startDate": "2017-07-05T00:00:00+02:00",
+		"endDate": "2026-10-01T00:00:00+02:00",
+		"countdownPage": "pages/countdown.html",
+		"sharePage": "pages/share.html",
+		"archivingProcessPage": "pages/archiving_process.html",
+		"registerPage": "pages/registration.html",
+		"learnMorePage" : "https://internetobservatory.org.au/",
+		"runInterval": 1,
+		"searchProcessInterval": 10000,
+		"queryParameterInjectionWipe" : "pad_injection_wipe",
+		"queryParameterInjectionInterface" : "pad_injection_interface",
+		"firefoxGeckoID" : "9c32921b-9511-4952-a49c-fa19950634f2",
+		"timeDelayMillisecondsBeforeStartingProcess" : 2000,
+		"timeMillisecondsCheckTimerValue" : 5000,
+		"maxTimesToRunPerDay" : 4,
+		"timeMillisecondsToWaitBeforeSendingBackScrapeFirstAttempt" : 2000,
+		"timeMillisecondsToWaitBeforeSendingBackScrapeSecondAttempt" : 3000,
+		"timeMillisecondsToWaitBeforeSendingBackScrapeThirdAttempt" : 4000,
+		"timeMillisecondsBeforeDeletingWindowFirstAttempt" : 6000
+	},
+	"userAgentTypes" : {
+		"desktop" : null,
+		"mobile_iphone12pro" : {
+			"user_agent" : "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 QQ/8.5.0.635 V1_IPH_SQ_8.5.0_1_APP_A Pixel/1170 MiniAppEnable SimpleUISwitch/0 QQTheme/1000 Core/WKWebView Device/Apple(iPhone 12 Pro) NetType/WIFI QBWebViewType/1 WKType/1"
+		},
+		"mobile_galaxyS5" : {
+			"user_agent" : "Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36"
+		}
+	},
+	"manifest" : {
+		"mappings" : {
+    		"action" : "browser_action"
+		},
+		"common" : {
+			"name": "AIO - The Periodic Archiving Daemon",
+			"action" : {
+	    		"default_icon": {               
+					"16": "icons/icon-16.png",
+					"19": "icons/icon-19.png",
+					"38": "icons/icon-38.png",
+					"128": "icons/icon-128.png"
+				},
+				"default_title": "AIO - The Periodic Archiving Daemon",
+				"default_popup": "pages/popup.html"
+			},
+	  		"version": "1.0.0.0",
+			"content_scripts": [
+				{
+					"js": [ "scripts/searchRoutine/searchRoutineWipe.js" ],
+					"matches": [ 
+						"https://*.google.com/*",
+						"https://*.google.com.au/*",
+						"https://*.youtube.com/*",
+						"https://*.youtube.com.au/*"
+					],
+					"run_at":"document_start"
+				}
+			],
+			"description": "The Periodic Archiving Daemon empowers web-archiving research, by enabling participants to use their web browsers to periodically archive websites.",
+			"icons": {
+				"16": "icons/icon-16.png",
+				"128": "icons/icon-128.png"
+			},
+			"default_locale": "en"
+		},
+  		"contextualised" : {
+  			"background" : {
+  				"2" : {
+					"scripts": [ "background.js" ]
+				},
+				"3" : {
+					"service_worker": "background.js"
+				}
+  			},
+  			"permissions" : {
+  				"2" : [
+					"tabs",
+					"storage",
+					"alarms",
+					"idle",
+					"webRequest",
+					"webRequestBlocking",
+					"https://*.google.com/*",
+					"https://*.google.com.au/*",
+					"https://*.youtube.com/*",
+					"https://*.youtube.com.au/*"
+				],
+  				"3" : [
+					"tabs",
+					"storage",
+					"alarms",
+					"idle",
+					"declarativeNetRequest"
+				]
+  			},
+  			"web_accessible_resources" : {
+  				"2" : ["icons/*.png", "pages/*.*", "resources/*.*", "config.json"],
+  				"3" : [{ "resources": ["icons/*.png", "pages/*.*", "resources/*.*", "config.json"], "matches": ["<all_urls>"] }]
+  			},
+  			"declarative_net_request" : {
+  				"2" : null,
+  				"3" : {
+					"rule_resources" : [{
+						"id": "ruleset_1",
+						"enabled": true,
+						"path": "rules.json"
+					}]
+				}
+  			},
+			"host_permissions": {
+  				"2" : null,
+  				"3" : [
+					"https://*.google.com/*",
+					"https://*.google.com.au/*",
+					"https://*.youtube.com/*",
+					"https://*.youtube.com.au/*"
+				]
+  			}
+  		}
+	},
+	"scraper" : {
+		"keywords": [
+			"Hello"
+		],
+		"selectors_mobile_iphone12pro" : [
+			{
+			  "platform": "youtube",
+			  "url": "https://www.youtube.com/results?search_query=DYNAMIC_OPTIONS_KEYWORD",
+			  "items": {
+			    "logged_in": [
+			      "[FLAG_INDEXED]\"logged_in\",\"value\":\"1\""
+			    ]
+			  }
+			}
+		],
+		"selectors_mobile_galaxyS5" : [
+			{
+			  "platform": "youtube",
+			  "url": "https://www.youtube.com/results?search_query=DYNAMIC_OPTIONS_KEYWORD",
+			  "items": {
+			    "logged_in": [
+			      "[FLAG_INDEXED]\"logged_in\",\"value\":\"1\""
+			    ]
+			  }
+			}
+		],
+		"selectors_desktop" : [
+			{
+			  "platform": "youtube",
+			  "url": "https://www.youtube.com/results?search_query=DYNAMIC_OPTIONS_KEYWORD",
+			  "items": {
+			    "logged_in": [
+			      "[FLAG_INDEXED](LOGGED_IN\":true)"
+			    ]
+			  }
+			}
+		]
+	},
+  	"strings" : {
+	  	"commonMappings" : {
+			"LANGUAGE" : "en",
+			"PLUGIN_FORMAL_NAME" : "The Periodic Archiving Daemon",
+			"URL_BRANDING" : "https://internetobservatory.org.au/",
+			"INSTITUTIONAL_LOGO_FILE" : "../resources/branding/institutional-logo/institutional-logo-file.png",
+			"INSTITUTIONAL_LOGO_FILE_BW_TRANSPARENT" : "../resources/branding/institutional-logo/institutional-logo-file-bw-transparent.png",
+			"URL_LEARN_MORE" : "https://internetobservatory.org.au/",
+			"URL_PRIVACY_POLICY" : "https://internetobservatory.org.au/",
+			"FAVICON_APPLE_TOUCH" : "../resources/branding/favicon/apple-touch-icon.png",
+			"FAVICON_16x" : "../resources/branding/favicon/favicon-16x16.png",
+			"FAVICON_32x" : "../resources/branding/favicon/favicon-32x32.png",
+			"FAVICON_WEBMANIFEST" : "../resources/branding/favicon/site.webmanifest",
+			"FAVICON" : "../resources/branding/favicon/favicon.ico",
+			"PAGE_AGNOSTIC_LOADING_HEADING" : "Loading",
+			"METADATA_PAGE_AUTHOR" : "Australian Internet Observatory",
+			"METADATA_PAGE_DESCRIPTION" : "N/A"
+		},
+		"registration.html" : {
+			"REGISTER_HEADING" : "Plugin Registration",
+			"REGISTER_LEAD" : "Before you can participate in usage of this browser plugin, you will need to firstly register your participation via this form. Please enter your details below and then click submit to continue:",
+			"REGISTER_PLUGIN_LOGO_FILE" : "../resources/branding/images/plugin-register.png",
+			"REGISTER_LEARN_MORE_TEXT" : "Learn More",
+			"REGISTER_PRIVACY_POLICY_TEXT" : "Privacy Policy",
+			"REGISTER_BUTTON_SUBMIT_TEXT" : "SUBMIT",
+			"ERROR_HEADING" : "Plugin Registration Error",
+			"ERROR_LEAD" : "It appears there was an error when attempting to register your plugin - please check your internet connection and try again later.",
+			"ERROR_LOGO_FILE" : "../resources/branding/images/plugin-error.png",
+			"REGISTERED_HEADING" : "This Plugin Is Registered",
+			"REGISTERED_LEAD" : "Thank you for choosing to participate in usage of the Periodic Archiving Daemon",
+			"REGISTERED_LOGO_FILE" : "../resources/branding/images/plugin-registered.png"
+		},
+		"share.html" : {
+			"SHARE_HEADING" : "Thank you for your support!",
+			"SHARE_LEAD" : "By installing this plugin, you are assisting valuable research into web-archiving.<br> If you can spare a moment, please let your friends know about The Periodic Archiving Daemon:",
+			"SHARE_PLUGIN_LOGO_FILE" : "../resources/branding/images/plugin-share.png",
+			"SHARE_FACEBOOK_URL" : "https://www.facebook.com/sharer.php?u=https%3A%2F%2Finternetobservatory%2Eorg%2Eau%2F",
+			"SHARE_LINKEDIN_URL" : "https://www.linkedin.com/sharing/share-offsite/?url=https://internetobservatory.org.au/",
+			"SHARE_BLUESKY_URL" : "https://bsky.app/intent/compose?text=https%3A%2F%2Finternetobservatory%2Eorg%2Eau%2F"
+		},
+		"popup.html" : {
+			"BUTTON_TEST_RUN_TEXT" : "TEST RUN",
+			"BUTTON_REGISTER_TEXT" : "REGISTER",
+			"BUTTON_PAUSE_FOR_24HRS_TEXT" : "PAUSE FOR 24 HOURS",
+			"ABOUT_THIS_PROJECT_TEXT" : "About this project...",
+			"BUTTON_PAUSE_FOR_24HRS_RESUME_TEXT" : "The plugin will resume in",
+			"PLUGIN_STATUS_TEXT" : "STATUS:",
+			"PLUGIN_STATUS_REGISTERED_TEXT" : "REGISTERED",
+			"PLUGIN_STATUS_UNREGISTERED_TEXT" : "NOT REGISTERED",
+			"PLUGIN_DATA_COLLECTION_WINDOW_ENDED_TEXT" : "The Periodic Archiving Daemon data donation project has now ended. Thank you for contributing to the success of this project.",
+			"PLUGIN_DATA_COLLECTION_WINDOW_ENDED_IMAGE" : "../resources/branding/images/plugin-thanks.png"
+		},
+		"archiving_process.html" : {
+			"ARCHIVING_PROCESS_HEADING" : "Archiving In Progress",
+			"ARCHIVING_PROCESS_TEXT_LEAD" : "This window will close automatically once the archiving process is complete."
+		},
+		"countdown.html" : {
+			"COUNTDOWN_HEADING" : "Archiving Process Starting",
+			"COUNTDOWN_HEADING_ALT" : "Archiving Process Starting...",
+			"COUNTDOWN_LEAD" : "This window will automatically visit a number of webpages in the background. Feel free to continue your usual activity while it completes.<br><br>You may pause or cancel the process at any time by clicking either of the buttons below.",
+			"COUNTDOWN_PAUSED_MODAL_HEADING" : "Archiving Process Paused",
+			"COUNTDOWN_PAUSED_MODAL_TEXT" : "This window will close automatically in a few seconds...",
+			"BUTTON_PAUSE_FOR_24HRS_TEXT" : "PAUSE FOR 24 HOURS",
+			"BUTTON_CANCEL_PROCESS_TEXT" : "CANCEL PROCESS"
+		}
+	}
+}

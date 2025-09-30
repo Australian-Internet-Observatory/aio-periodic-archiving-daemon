@@ -2,7 +2,7 @@ import randomId from 'random-id';
 import storage from './utilitiesStorage';
 import ext from './utilitiesCrossBrowser';
 import moment from 'moment';
-import { getConfig, debugAO } from '../config';
+import { getConfig, LOCAL_DEBUG } from '../config';
 
 /*
   This is the Fisher-Yates-Durstenfeld shuffle algorithm
@@ -47,7 +47,7 @@ export function safelyRemoveTab(tabId) {
      if(ext.runtime.lastError) {}
     })
   } catch (e) {
-    if (debugAO) { console.log(e); }
+    if (LOCAL_DEBUG) { console.log(e); }
   }
 }
 
@@ -60,7 +60,7 @@ export function safelyRemoveWindow(windowId) {
      if(ext.runtime.lastError) {}
    })
   } catch (e) {
-    if (debugAO) { console.log(e) }
+    if (LOCAL_DEBUG) { console.log(e) }
   }
 }
 
@@ -254,7 +254,7 @@ export function assistant_fuzzyTime(inputTextPre) {
            return String(recordedDate.toISOString().slice(0, 19).replace('T', ' '));
          } catch (e) {
             error_log.push(String(e)+" "+String(e.lineNumber)+" ");;
-          if (debugAO) { console.log(e); }
+          if (LOCAL_DEBUG) { console.log(e); }
           return inputText;
         }
       } else {
@@ -281,7 +281,7 @@ export function assistant_fuzzyTime(inputTextPre) {
           return String(new Date(epochtimeInSeconds * 1000).toISOString().slice(0, 19).replace('T', ' '));
         } catch (e) {
          error_log.push(String(e)+" "+String(e.lineNumber)+" ");;
-          if (debugAO) { console.log(e); }
+          if (LOCAL_DEBUG) { console.log(e); }
           return inputText;
         }
       }
@@ -335,7 +335,7 @@ export function assistant_numberConversion(inputText) {
     returnValue *= multiplicant;
 
   } catch (e) {
-    if (debugAO) { console.log("Error at 'assistant_numberConversion':", e); }
+    if (LOCAL_DEBUG) { console.log("Error at 'assistant_numberConversion':", e); }
   }
   return returnValue;
 }
@@ -354,7 +354,7 @@ export function assistant_fuzzyViews(inputText) {
     outputViews = parseInt(assistant_numberConversion(inputTextProcessed).toFixed(2));
     // Then run a simple number conversion
   } catch (e) {
-    if (debugAO) { console.log("Error at 'assistant_fuzzyViews':", e); }
+    if (LOCAL_DEBUG) { console.log("Error at 'assistant_fuzzyViews':", e); }
   }
   return outputViews;
 }
@@ -398,7 +398,7 @@ export function assistant_fuzzyDurationToSeconds(inputText) {
       }
     } catch (e) {
        error_log.push(String(e)+" "+String(e.lineNumber)+" ");;
-      if (debugAO) { console.log(e); }
+      if (LOCAL_DEBUG) { console.log(e); }
       // Do Nothing
     }
     return seconds;

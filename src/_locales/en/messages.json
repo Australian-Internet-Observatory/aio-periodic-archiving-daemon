@@ -1,11 +1,11 @@
 {
   "appName": {
-    "message": "ADM+S - The Australian Search Experience",
-    "description": "ADM+S - The Australian Search Experience"
+    "message": "AIO - The Periodic Archiving Daemon",
+    "description": "AIO - The Periodic Archiving Daemon"
   },
   "appDescription": {
-    "message": "An extension for data donation in relation the various search engines.",
-    "description": "An extension for data donation in relation the various search engines."
+    "message": "The Periodic Archiving Daemon empowers web-archiving research, by enabling participants to use their web browsers to periodically archive websites.",
+    "description": "The Periodic Archiving Daemon empowers web-archiving research, by enabling participants to use their web browsers to periodically archive websites."
   },
   "btnTooltip": {
     "message": "Extension",

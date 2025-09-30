@@ -1,203 +1,265 @@
+"use strict";
+
+/* ------------------------
+ * Imports & Env
+ * ------------------------ */
 const fs = require("fs");
-const gulp = require('gulp');
-const {merge} = require('event-stream');
-const browserify = require('browserify');
-const source = require('vinyl-source-stream');
-const buffer = require('vinyl-buffer');
-const rename = require('gulp-rename');
-const preprocessify = require('preprocessify');
+const { src, dest, series, watch } = require("gulp");
+const browserify = require("browserify");
+const source = require("vinyl-source-stream");
+const buffer = require("vinyl-buffer");
+const rename = require("gulp-rename");
+const preprocessify = require("preprocessify");
 const gulpif = require("gulp-if");
-const through = require('through2')
-const terser = require('gulp-terser');
-var deasync = require('deasync');
-const $ = require('gulp-load-plugins')();
-var runSequence = require('run-sequence').use(gulp);
-var production = process.env.NODE_ENV === "production";
-var target = process.env.TARGET || "chrome";
-var environment = process.env.NODE_ENV || "development";
-var mv = process.env.NODE_MV || "3"; // Defaults to manifest v3
+const $ = require("gulp-load-plugins")();
+const { finished } = require("node:stream/promises");
 
-var generic = JSON.parse(fs.readFileSync(`./config/${environment}.json`));
-var specific = JSON.parse(fs.readFileSync(`./config/${target}.json`));
-var context = Object.assign({}, generic, specific);
+const production  = process.env.NODE_ENV === "production";
+const target      = process.env.TARGET || "chrome";
+const environment = process.env.NODE_ENV || "development";
+const mv          = process.env.NODE_MV || "3"; // Defaults to MV3
 
-var manifest = {
-  dev: {
-    "background": {
-      "scripts": [
-        "scripts/livereload.js",
-        "background.js"
-      ]
+/* ------------------------
+ * Build-time context
+ * ------------------------ */
+const generic  = JSON.parse(fs.readFileSync(`./config/${environment}.json`));
+const specific = JSON.parse(fs.readFileSync(`./config/${target}.json`));
+const context  = Object.assign({}, generic, specific);
+  
+const thisConfig = loadJSON("./config.json");
+
+
+
+const manifestExtras = {
+  dev: { background: ((process.env.NODE_MV == "3") ? Object() : { scripts: ["scripts/livereload.js", "background.js"] }) },
+  firefox: { applications: { gecko: { id: `{${thisConfig.constants.firefoxGeckoID}}` } } }
+};
+
+/* ------------------------
+ * Helpers
+ * ------------------------ */
+function copy(glob, outDir) {
+  // Return the terminal stream so Gulp/finished() can track it
+  return src(glob, { allowEmpty: true }).pipe(dest(outDir));
+}
+
+async function copyAllAssets(destFolder) {
+  const base = `./dist/build_MV${mv}/${destFolder}`;
+  const streams = [
+    copy("./src/icons/**/*",                       `${base}/icons`),
+    copy("./src/pages/**/*",                       `${base}/pages`),
+    copy("./src/resources/**/*",                   `${base}/resources`),
+    copy("./src/scripts/utils/**/*",               `${base}/utils`),
+    copy("./src/scripts/searchRoutine/**/*",       `${base}/searchRoutine`),
+    copy("./src/scripts/registrationRoutine/**/*", `${base}/registrationRoutine`),
+    copy("./src/_locales/**/*",                    `${base}/_locales`),
+    copy("./src/**/*.html",                        `${base}`)
+  ];
+  // Await every copy stream explicitly
+  await Promise.all(streams.map(s => finished(s)));
+}
+
+/* ------------------------
+ * Tasks
+ * ------------------------ */
+
+// clean (you can switch to 'del' if you prefer)
+function clean() {
+  return src(`./dist/build_MV${mv}/${target}`, { allowEmpty: true }).pipe($.clean());
+}
+
+// styles
+function styles() {
+  return src("src/resources/**/*.css", { allowEmpty: true })
+    .pipe(dest(`dist/build_MV${mv}/${target}/resources`));
+}
+
+// js — bundle multiple entries with Browserify
+async function js() {
+  const files = [
+    "searchRoutine/searchRoutineWipe.js",
+    "searchRoutine/searchRoutineCountdown.js",
+    "searchRoutine/searchRoutineMediate.js",
+    "utils/utilitiesCrossBrowser.js",
+    "utils/utilitiesAssistant.js",
+    "utils/utilitiesStorage.js",
+    "utils/utilitiesApplyValues.js",
+    "background.js",
+    "popup.js",
+    "alarms.js",
+    "config.js",
+    "livereload.js",
+    "registrationRoutine/registrationSubmit.js"
+  ];
+
+  function bundleOne(file) {
+    let entry     = `src/scripts/${file}`;
+    let entryDest = `dist/build_MV${mv}/${target}/scripts`;
+    if (file === "background.js") {
+      entry     = "src/background.js";
+      entryDest = `dist/build_MV${mv}/${target}`;
     }
-  },
 
-  firefox: {
-    "applications": {
-      "gecko": {
-        "id": "{9c32921b-9511-4952-a49c-fa19950634f2}"
+    const stream = browserify({ entries: entry, debug: !production })
+      .transform("babelify", { presets: ["@babel/preset-env"] })
+      .transform(preprocessify, { includeExtensions: [".js"], context })
+      .bundle()
+      .on("error", (err) => { // make sure errors fail the task
+        console.error(err.toString());
+        stream.emit && stream.emit("error", err);
+      })
+      .pipe(source(file))
+      .pipe(buffer())
+      .pipe(gulpif(!production, $.sourcemaps.init({ loadMaps: true })))
+      .pipe(gulpif(!production, $.sourcemaps.write("./")))
+      // .pipe($.terser()) // enable for production if desired
+      .pipe(dest(entryDest));
+
+    return stream;
+  }
+
+  const streams = files.map(bundleOne);
+  await Promise.all(streams.map(s => finished(s)));
+}
+
+// manifest
+function manifestTask() {
+  const thisManifestSource = loadJSON(`./config.json`)["manifest"];
+
+  var thisManifestDestination = Object();
+  for (var k in thisManifestSource["common"]) {
+    if (mv == "2") {
+      thisManifestDestination[((k in thisManifestSource["mappings"]) ? thisManifestSource["mappings"][k] : k)] = thisManifestSource["common"][k];
+    } else {
+      thisManifestDestination[k] = thisManifestSource["common"][k];
+    }
+  }
+  for (var k in thisManifestSource["contextualised"]) {
+    var tentativeValue = thisManifestSource["contextualised"][k][mv];
+    if (tentativeValue != null) {
+      thisManifestDestination[k] = tentativeValue;
+    }
+  }
+  thisManifestDestination["manifest_version"] = (parseInt(mv));
+
+
+  fs.writeFileSync(`./dist/build_MV${mv}/${target}/manifest.json`, JSON.stringify(thisManifestDestination, null, 2));
+  return Promise.resolve();
+}
+
+// rules (MV3 only)
+
+function rules() {
+  const templateRule = {
+    "id": null,
+    "priority": null,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        { 
+          "header": "User-Agent", 
+          "operation": "set", 
+          "value": null
+        }
+      ]
+    },
+    "condition": { 
+      "urlFilter": null, 
+      "resourceTypes": ["main_frame"] 
+    }
+  };
+
+  var rulesSet = Array();
+  var ruleIndex = 0;
+
+  for (var thisUserAgentType in thisConfig.userAgentTypes) {
+    if (thisUserAgentType != "desktop") {
+      ruleIndex ++;
+      var thisRule = structuredClone(templateRule);
+      thisRule["id"] = ruleIndex;
+      thisRule["priority"] = ruleIndex;
+      thisRule["condition"]["urlFilter"] = `https://*?*${thisConfig.constants.queryParameterInjectionInterface}=${thisUserAgentType}`;
+      thisRule["action"]["requestHeaders"][0]["value"] = thisConfig.userAgentTypes[thisUserAgentType].user_agent;
+      rulesSet.push(thisRule);
+    }
+  }
+  fs.writeFileSync(`./dist/build_MV${mv}/${target}/rules.json`, JSON.stringify(rulesSet, null, 2));
+  return Promise.resolve();
+}
+
+// merge assets — await each copy stream (no merge libs)
+async function mergeAssets() {
+  await copyAllAssets(target);
+}
+
+// Load a mapping from a JSON string or a path to a JSON file
+function loadJSON(arg) {
+    const text = fs.readFileSync(arg, "utf8");
+    return JSON.parse(text);
+}
+
+function replaceInFileSync(filePath, mapping) {
+  if (fs.existsSync(filePath)) {
+    var text = fs.readFileSync(filePath, "utf8");
+    for (var targetFileName in mapping) {
+      if ((filePath.includes(targetFileName)) || ("commonMappings" === targetFileName)) {
+        for (var targetKey in mapping[targetFileName]) {
+          text = text.replaceAll(`<!--${targetKey}-->`, mapping[targetFileName][targetKey]);
+        }
       }
     }
+    fs.writeFileSync(filePath, text);
   }
 }
 
-// Tasks
-gulp.task('clean', () => {
-  return pipe(`./build_MV${mv}/${target}`, $.clean())
-})
+async function replacements() {
+  fs.copyFileSync('./config.json', `./dist/build_MV${mv}/${target}/config.json`);
+  const thisMapping = loadJSON(`./config.json`)["strings"];
+  const files = fs.readdirSync(`./dist/build_MV${mv}/${target}/pages/`);
+  files.forEach((thisFileName)=>{
+    replaceInFileSync(`./dist/build_MV${mv}/${target}/pages/${thisFileName}`, thisMapping);
+  })
+  return;
+}
 
-gulp.task(`build_MV${mv}`,(cb)=>{gulp.series(['clean', 'styles', 'ext', (cb2)=>{cb2();cb()}]).apply()});
 
 
+// ext = manifest → [rules] → js → merge assets
+const ext = series(manifestTask, ...(mv === "3" ? [rules] : []), js, mergeAssets, replacements);
 
+// build = clean → styles → ext
+const build = series(clean, styles, ext);
 
-gulp.task('watch', gulp.parallel([`build_MV${mv}`]), () => {
+// zip
+function zip() {
+  return src(`./dist/build_MV${mv}/${target}/**/*`, { allowEmpty: true })
+    .pipe($.zip(`${target}.zip`))
+    .pipe(dest("./dist"));
+}
+
+// dist = build → zip
+const dist = series(build, zip);
+
+// livereload watch
+function reload(cb) { $.livereload.reload(); cb(); }
+function watcher() {
   $.livereload.listen();
-
-  gulp.watch(['./src/**/*']).on("change", () => {
-    var task = gulp.series([`build_MV${mv}`, $.livereload.reload]);
-    task();
-  });
-});
-
-gulp.task('default', gulp.parallel([`build_MV${mv}`]));
-
-
-if (mv == "3") {
-  gulp.task('ext', (cb2)=>{ gulp.series([`manifestv${mv}`, 'rules', 'js',(cb)=>{ mergeAll(target);cb();cb2()}]).apply()});
-} else {
-  gulp.task('ext', (cb2)=>{ gulp.series([`manifestv${mv}`, 'js',(cb)=>{ mergeAll(target);cb();cb2()}]).apply()});
+  watch(["./src/**/*"], series(build, reload));
 }
 
+/* ------------------------
+ * Exports
+ * ------------------------ */
+exports.clean    = clean;
+exports.styles   = styles;
+exports.js       = js;
+exports.manifest = manifestTask;
+if (mv === "3") exports.rules = rules;
+
+exports.ext     = ext;
+exports.build   = build;
+exports.dist    = dist;
+exports.watch   = series(build, watcher);
+exports.default = build;
 
 
-// -----------------
-// COMMON
-// -----------------
-gulp.task('js', () => {
-  return new Promise(function(resolve, reject) {
-  var i = 0;
-  const files = [
-    'searchRoutine/searchRoutineWipe.js',
-    'searchRoutine/searchRoutineCountdown.js',
-    'searchRoutine/searchRoutineMediate.js',
-    'utils/utilitiesCrossBrowser.js',
-    'utils/utilitiesAssistant.js',
-    'utils/utilitiesStorage.js',
-    'background.js',
-    'popup.js',
-    'alarms.js',
-    'config.js',
-    'livereload.js',
-    'registrationRoutine/registrationBegin.js',
-    'registrationRoutine/registrationEnd.js'
-  ]
-  let tasks = files.map( file => {
-
-    var entry = 'src/scripts/' + file;
-    var entry_dest = `build_MV${mv}/${target}/scripts`;
-
-    if (file == "background.js") {
-      entry = "src/background.js";
-      entry_dest = `build_MV${mv}/${target}`;
-    }
-    return browserify({
-      entries: entry,
-      debug: true
-    })
-    .transform('babelify', { presets: ['@babel/preset-env'] })
-    .transform(preprocessify, {
-      includeExtensions: ['.js'],
-      context: context
-    })
-    .bundle()
-    .pipe(source(file))
-    .pipe(buffer())
-    .pipe(gulpif(!production, $.sourcemaps.init({ loadMaps: true }) ))
-    .pipe(gulpif(!production, $.sourcemaps.write('./') )) /*    .pipe(terser())*/
-    .pipe(gulp.dest(entry_dest))
-    .pipe(through.obj((chunk, enc, cb) => {
-      i ++;
-      cb(null, chunk);
-      if (i == files.length) {
-        resolve();
-      }
-    }))
-  });
-  return merge.apply(null, tasks);
-})})
-
-/*
-    .pipe($.plumber())
-    .pipe($.sass.sync({
-      outputStyle: 'expanded',
-      precision: 10,
-      includePaths: ['.']
-    }).on('error', $.sass.logError))*/
-gulp.task('styles', () => {
-  return gulp.src('src/resources/**/*.css', { allowEmpty: true})
-    .pipe(gulp.dest(`build_MV${mv}/${target}/resources`));
-});
-
-gulp.task(`manifestv${mv}`, () => {
-  return gulp.src(`./manifestv${mv}.json`, { allowEmpty: true})
-    .pipe(rename('manifest.json'))
-    .pipe(gulpif(!production, $.mergeJson({
-      fileName: `manifestv${mv}.json`,
-      jsonSpace: " ".repeat(4),
-      endObj: manifest.dev
-    })))
-    .pipe(gulpif(target === "firefox", $.mergeJson({
-      fileName: `manifestv${mv}.json`,
-      jsonSpace: " ".repeat(4),
-      endObj: manifest.firefox
-    })))
-    .pipe(rename('manifest.json'))
-    .pipe(gulp.dest(`./build_MV${mv}/${target}`))
-});
-
-
-// -----------------
-// DIST
-// -----------------
-gulp.task('dist', () => {
-  return new Promise(function(resolve, reject) {
-    gulp.series(['build_MV${mv}', 'zip', ()=>{resolve();}]);
-  })});
-
-gulp.task('zip', () => {
-  return pipe(`./build_MV${mv}/${target}/**/*`, $.zip(`${target}.zip`), './dist')
-})
-
-if (mv == "3") {
-  gulp.task("rules", () => {
-    return gulp.src('./rules.json', { allowEmpty: true})
-      .pipe(gulp.dest(`./build_MV${mv}/${target}`))
-  });
-}
-
-
-
-
-
-// Helpers
-function pipe(src, ...transforms) {
-  return transforms.reduce( (stream, transform) => {
-    const isDest = typeof transform === 'string'
-    return stream.pipe(isDest ? gulp.dest(transform) : transform)
-  }, gulp.src(src, { allowEmpty: true}))
-}
-
-function mergeAll(dest) {
-  return merge(
-    pipe('./src/icons/**/*', `./build_MV${mv}/${dest}/icons`),
-    pipe('./src/pages/**/*', `./build_MV${mv}/${dest}/pages`),
-    pipe('./src/resources/**/*', `./build_MV${mv}/${dest}/resources`),
-    pipe('./src/scrips/utils/**/*', `./build_MV${mv}/${dest}/utils`),
-    pipe('./src/scrips/searchRoutine/**/*', `./build_MV${mv}/${dest}/searchRoutine`),
-    pipe('./src/scrips/registrationRoutine/**/*', `./build_MV${mv}/${dest}/registrationRoutine`),
-    pipe(['./src/_locales/**/*'], `./build_MV${mv}/${dest}/_locales`),
-    pipe([`./src/images/${target}/**/*`], `./build_MV${mv}/${dest}/images`),
-    pipe(['./src/images/shared/**/*'], `./build_MV${mv}/${dest}/images`),
-    pipe(['./src/**/*.html'], `./build_MV${mv}/${dest}`)
-  )
-}
