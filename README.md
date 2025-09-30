@@ -54,7 +54,9 @@ It builds on prior work including:
 
 ## 👥 Authors
 
-Dr Abdul Karim Obeid (@askoj), Mr Anish Mathew (@amat004), Ms Futoon AbuShaqra (@FtoonAbushaqra)
+* Dr Abdul Karim Obeid @askoj
+* Mr Anish Mathew @amat004
+* Ms Futoon AbuShaqra @FtoonAbushaqra
 
 ------
 
