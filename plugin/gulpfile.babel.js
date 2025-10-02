@@ -4,6 +4,7 @@
  * Imports & Env
  * ------------------------ */
 const fs = require("fs");
+const path = require('path');
 const { src, dest, series, watch } = require("gulp");
 const browserify = require("browserify");
 const source = require("vinyl-source-stream");
@@ -52,7 +53,6 @@ async function copyAllAssets(destFolder) {
     copy("./src/scripts/utils/**/*",               `${base}/utils`),
     copy("./src/scripts/searchRoutine/**/*",       `${base}/searchRoutine`),
     copy("./src/scripts/registrationRoutine/**/*", `${base}/registrationRoutine`),
-    copy("./src/_locales/**/*",                    `${base}/_locales`),
     copy("./src/**/*.html",                        `${base}`)
   ];
   // Await every copy stream explicitly
@@ -147,6 +147,21 @@ function manifestTask() {
   return Promise.resolve();
 }
 
+// locales
+function localesTask() {
+  // Create the locales directory
+  const thisLocalesSource = loadJSON(`./config.json`)["_locales"];
+  const localesPath = path.join(__dirname, 'dist', `build_MV${mv}`, `${target}`, '_locales');
+  fs.mkdirSync(localesPath, { recursive: true });
+  for (var thisLanguage in thisLocalesSource) {
+    const thisLanguageLocalesPath = path.join(localesPath, thisLanguage);
+    fs.writeFileSync(path.join(`${localesPath}`, 'messages.json'), JSON.stringify(thisLocalesSource[thisLanguage], null, 2));
+  }
+
+  return Promise.resolve();
+}
+
+
 // rules (MV3 only)
 
 function rules() {
@@ -225,7 +240,7 @@ async function replacements() {
 
 
 // ext = manifest → [rules] → js → merge assets
-const ext = series(manifestTask, ...(mv === "3" ? [rules] : []), js, mergeAssets, replacements);
+const ext = series(manifestTask, localesTask, ...(mv === "3" ? [rules] : []), js, mergeAssets, replacements);
 
 // build = clean → styles → ext
 const build = series(clean, styles, ext);
@@ -254,6 +269,7 @@ exports.clean    = clean;
 exports.styles   = styles;
 exports.js       = js;
 exports.manifest = manifestTask;
+exports.locales = localesTask;
 if (mv === "3") exports.rules = rules;
 
 exports.ext     = ext;

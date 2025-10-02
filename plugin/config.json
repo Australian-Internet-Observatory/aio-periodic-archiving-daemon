@@ -16,7 +16,7 @@
 		"searchProcessInterval": 10000,
 		"queryParameterInjectionWipe" : "pad_injection_wipe",
 		"queryParameterInjectionInterface" : "pad_injection_interface",
-		"firefoxGeckoID" : "9c32921b-9511-4952-a49c-fa19950634f2",
+		"firefoxGeckoID" : "FIREFOX_GECKO_ID_GOES_HERE",
 		"timeDelayMillisecondsBeforeStartingProcess" : 2000,
 		"timeMillisecondsCheckTimerValue" : 5000,
 		"maxTimesToRunPerDay" : 4,
@@ -32,6 +32,22 @@
 		},
 		"mobile_galaxyS5" : {
 			"user_agent" : "Mozilla/5.0 (Linux; Android 8.0.0; SM-G960F Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.84 Mobile Safari/537.36"
+		}
+	},
+	"_locales" : {
+		"en" : {
+			"appName": {
+				"message": "AIO - The Periodic Archiving Daemon",
+				"description": "AIO - The Periodic Archiving Daemon"
+			},
+			"appDescription": {
+				"message": "The Periodic Archiving Daemon empowers web-archiving research, by enabling participants to use their web browsers to periodically archive websites.",
+				"description": "The Periodic Archiving Daemon empowers web-archiving research, by enabling participants to use their web browsers to periodically archive websites."
+			},
+			"btnTooltip": {
+				"message": "Extension",
+				"description": "Tooltip for the button."
+			}
 		}
 	},
 	"manifest" : {
