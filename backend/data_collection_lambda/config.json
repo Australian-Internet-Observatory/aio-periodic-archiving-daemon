@@ -1,0 +1,46 @@
+{
+	"s3_demographic_data_bucket" : "aio-pad-demographic-bucket",
+	"s3_data_donation_bucket" : "browser-extension-payload-test",
+	"demographic_details" : {
+		"mappings" : {
+			"uuid" : {
+				"path" : ["uuid"],
+				"name" : "Participant UUID"
+			},
+			"version" : {
+				"path" : ["version"],
+				"name" : "Plugin Version"
+			},
+			"age" : {
+				"path" : ["demographic_details", "age"],
+				"name" : "Participant Age"
+			},
+			"gender" : {
+				"path" : ["demographic_details", "gender"],
+				"name" : "Participant Gender"
+			},
+			"postcode" : {
+				"path" : ["demographic_details", "postcode"],
+				"name" : "Participant Postcode"
+			},
+			"political_preference" : {
+				"path" : ["demographic_details", "political_preference"],
+				"name" : "Participant Political Preference"
+			},
+			"income_bracket" : {
+				"path" : ["demographic_details", "income_bracket"],
+				"name" : "Participant Income Bracket"
+			},
+			"education_level" : {
+				"path" : ["demographic_details", "education_level"],
+				"name" : "Participant Education Level"
+			},
+			"created_at" : {
+				"path" : ["created_at"],
+				"name" : "Participant Created At"
+			}
+		},
+		"orderings" : ["uuid", "version", "created_at", "age", "gender", "postcode", "political_preference", "income_bracket", "education_level"]
+	}
+
+}

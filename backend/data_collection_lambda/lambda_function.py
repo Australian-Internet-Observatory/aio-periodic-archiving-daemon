@@ -16,12 +16,12 @@ from openpyxl import Workbook
 
 if (__name__ == "__main__"): import ipdb
 
-SECRET_KEY = "open_sesame_123"
+SECRET_KEY = "open_sesame_123" # TODO - replace with an environment variable
 
 AWS_S3 = boto3.resource("s3")
 AWS_S3_CLIENT = boto3.client("s3")
 
-AWS_S3_DEMOGRAPHIC_BUCKET = "aio-pad-demographic-bucket"
+CONFIG = json.loads(open(os.path.join(os.getcwd(), "config.json")))
 
 
 '''
@@ -75,13 +75,13 @@ def demographic_id(this_uuid): return f'entries/{this_uuid}/registration_object.
 	This function reads a demographic entry from the demographic bucket
 '''
 def demographic_entry_read(this_uuid):
-	return json.loads(AWS_S3.Object(AWS_S3_DEMOGRAPHIC_BUCKET, demographic_id(this_uuid)).get()['Body'].read())
+	return json.loads(AWS_S3.Object(CONFIG["s3_demographic_data_bucket"], demographic_id(this_uuid)).get()['Body'].read())
 
 '''
 	This function writes a demographic entry to the demographic bucket
 '''
 def demographic_entry_add(this_registration_object):
-	AWS_S3.Object(AWS_S3_DEMOGRAPHIC_BUCKET, demographic_id(this_registration_object["uuid"])).put(Body=json.dumps(this_registration_object, indent=3))
+	AWS_S3.Object(CONFIG["s3_demographic_data_bucket"], demographic_id(this_registration_object["uuid"])).put(Body=json.dumps(this_registration_object, indent=3))
 
 '''
 	This function registers a participant
@@ -101,74 +101,35 @@ def demographic_register(event, context):
 '''
 	This function compiles an Excel spreadsheet, containing the details of all participants
 '''
-DEMOGRAPHIC_DETAIL_MAPPINGS = {
-		"uuid" : {
-			"path" : ["uuid"],
-			"name" : "Participant UUID"
-		},
-		"version" : {
-			"path" : ["version"],
-			"name" : "Plugin Version"
-		},
-		"age" : {
-			"path" : ["demographic_details", "age"],
-			"name" : "Participant Age"
-		},
-		"gender" : {
-			"path" : ["demographic_details", "gender"],
-			"name" : "Participant Gender"
-		},
-		"postcode" : {
-			"path" : ["demographic_details", "postcode"],
-			"name" : "Participant Postcode"
-		},
-		"political_preference" : {
-			"path" : ["demographic_details", "political_preference"],
-			"name" : "Participant Political Preference"
-		},
-		"income_bracket" : {
-			"path" : ["demographic_details", "income_bracket"],
-			"name" : "Participant Income Bracket"
-		},
-		"education_level" : {
-			"path" : ["demographic_details", "education_level"],
-			"name" : "Participant Education Level"
-		},
-		"created_at" : {
-			"path" : ["created_at"],
-			"name" : "Participant Created At"
-		}
-	}
-DEMOGRAPHIC_DETAIL_COLUMN_ORDERINGS = ["uuid", "version", "created_at", "age", "gender", "postcode", "political_preference", "income_bracket", "education_level"]
 
 def demographic_report(event, context):
 	output = dict()
 	if (event["secret_key"] == SECRET_KEY):
 		# Read in all participants' details
 		participant_details = list()
-		for entry in subbucket_contents({"Bucket" : AWS_S3_DEMOGRAPHIC_BUCKET, "Prefix" : "entries/"}):
+		for entry in subbucket_contents({"Bucket" : CONFIG["s3_demographic_data_bucket"], "Prefix" : "entries/"}):
 			_, participant_uuid, _ = entry.split("/")
 			participant_details.append(demographic_entry_read(participant_uuid))
 		# Restructure into a 'flat' format
 		participant_details_flat = list()
 		for this_participant_detail in participant_details:
 			participant_details_flat.append({
-					DEMOGRAPHIC_DETAIL_MAPPINGS[k]["name"] : get(this_participant_detail, DEMOGRAPHIC_DETAIL_MAPPINGS[k]["path"])
-				for k in DEMOGRAPHIC_DETAIL_MAPPINGS})
+					CONFIG["demographic_details"]["mappings"][k]["name"] : get(this_participant_detail, CONFIG["demographic_details"]["mappings"][k]["path"])
+				for k in CONFIG["demographic_details"]["mappings"]})
 		# Export to an Excel format, and push to the bucket
 		wb = Workbook()
 		ws = wb.active
-		headers = [DEMOGRAPHIC_DETAIL_MAPPINGS[k]["name"] for k in DEMOGRAPHIC_DETAIL_COLUMN_ORDERINGS]
+		headers = [CONFIG["demographic_details"]["mappings"][k]["name"] for k in CONFIG["demographic_details"]["orderings"]]
 		ws.append(headers)
 		for row in participant_details_flat: ws.append([row.get(h) for h in headers])
 		buf = io.BytesIO()
 		wb.save(buf)
 		buf.seek(0)
 		report_key = f"reports/report.{int(time.time())}.xlsx"
-		AWS_S3.Object(AWS_S3_DEMOGRAPHIC_BUCKET, report_key).put(
+		AWS_S3.Object(CONFIG["s3_demographic_data_bucket"], report_key).put(
 			Body=buf.getvalue(), ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 		# Generate a presigned link URL for the results
-		output["link_url"] = generate_presigned_url(AWS_S3_DEMOGRAPHIC_BUCKET, report_key, expiry_seconds=3600, aws_region="ap-southeast-2")
+		output["link_url"] = generate_presigned_url(CONFIG["s3_demographic_data_bucket"], report_key, expiry_seconds=3600, aws_region="ap-southeast-2")
 	else:
 		output["error"] = "INCORRECT_SECRET_KEY"
 	return output
@@ -187,7 +148,7 @@ def lambda_handler(event, context):
 		response_obj["body"] |= processes[event_body["action"]](event_body, context)
 	else:
 		# Data donation capture event
-		AWS_S3.Object("browser-extension-payload-test", str(uuid.uuid4())).put(Body=json.dumps(json.loads(event["body"]), indent=3))
+		AWS_S3.Object(CONFIG["s3_data_donation_bucket"], str(uuid.uuid4())).put(Body=json.dumps(json.loads(event["body"]), indent=3))
 
 	response_obj["body"] = json.dumps(response_obj["body"])
 
