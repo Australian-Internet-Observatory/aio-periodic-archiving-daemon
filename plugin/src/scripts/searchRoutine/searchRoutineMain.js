@@ -51,6 +51,7 @@ const reserved = [
 var previousStateOfSearchRoutine = '';
 var ephemeralSearchRoutineElapsedTime;
 
+// Positives refer to what to do when in the code block, negatives for non-included case
 var CONST_REGEX_CUSTOM_FLAGS = {
   "DESLASH" : [customFlagStandardBehaviourPositive, customFlagStandardBehaviourNegative],
   "YOUTUBE_URL_CLEAN" : [customFlagStandardBehaviourPositive, customFlagStandardBehaviourNegative],
