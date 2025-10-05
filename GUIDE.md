@@ -96,82 +96,68 @@ Editing the plugin name and description (as well as other general strings) is de
 
 These strings are described below:
 
-`config.json → manifest → common → name`
+`config.json → manifest → common → name`<br>
 _The name of the plugin._
 
-<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ action ➡ default_title</span>
-<span style="size: 8pt;"><i>The default title of the plugin.</i></span>
+`config.json → manifest → common → action → default_title`<br>
+_The default title of the plugin._
 
-<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ version</span>
-<span style="size: 8pt;"><i>The version of the plugin.</i></span>
+`config.json → manifest → common → version`<br>
+_The version of the plugin._
 
-<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ description</span>
-<span style="size: 8pt;"><i>The description of the plugin.</i></span>
+`config.json → manifest → common → description`<br>
+_The description of the plugin._
 
-<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ default_locale</span>
-<span style="size: 8pt;"><i>The default locale to use when executing the plugin.</i></span>
+`config.json → manifest → common → default_locale`<br>
+_The default locale to use when executing the plugin._
 
 The next set of strings relate to the packaging of the plugin - as the plugin is a Node JS project, they follow the general conventions of the applicable set-up:
 
-`package.json -> name`
+`package.json → name`<br>
+_The name of the Node JS project._
 
-The name of the Node JS project.
+`package.json → version`<br>
+_The version of the Node JS project._
 
-`package.json -> version`
+`package.json → description`<br>
+_The description of the Node JS project._
 
-The version of the Node JS project.
+`package.json → repository → type`<br>
+_The type of SVN solution used for the repository._
 
-`package.json -> description`
+`package.json → repository → url`<br>
+_The URL of the repository used for SVN of the project._
 
-The description of the Node JS project.
+`package.json → author`<br>
+_The author(s) of the plugin._
 
-`package.json -> repository -> type`
+`package.json → bugs → url`<br>
+_The URL to which bugs can be submitted for maintenance of the project._
 
-The type of SVN solution used for the repository.
-
-`package.json -> repository -> url`
-
-The URL of the repository used for SVN of the project.
-
-`package.json -> author`
-
-The author(s) of the plugin.
-
-`package.json -> bugs -> url`
-
-The URL to which bugs can be submitted for maintenance of the project.
-
-`package.json -> homepage`
-
-The homepage of the project.
+`package.json → homepage`<br>
+_The homepage of the project._
 
 ##### Locales
 
 Locale strings are typically integrated with browser plugins to make the support of various languages seamless. While our plugin's design does not yet support the delivery of a single browser plugin codebase that supports multiple languages, we do however support configuration for a single language. Definitions of the strings that are shown to the participant are distributed between this section and the Front-Facing Pages. Below, we highlight some of the locale strings that can be edited in the aforementioned configuration JSON files.
 
-`config.json -> _locales -> en -> appName -> message`
+`config.json → _locales → en → appName → message`<br>
+_The application name of the browser plugin._
 
-The application name of the browser plugin.
+`config.json → _locales → en → appName → description`<br>
+_The description of the application name of the browser plugin._
 
-`config.json -> _locales -> en -> appName -> description`
+`config.json → _locales → en → appDescription → message`<br>
+_The application description of the browser plugin._
 
-The description of the application name of the browser plugin.
+`config.json → _locales → en → appDescription → description`<br>
+_The description of the application description of the browser plugin._
 
-`config.json -> _locales -> en -> appDescription -> message`
+`config.json → _locales → en → btnTooltip → message`<br>
+_The tooltip of the browser plugin._
 
-The application description of the browser plugin.
-
-`config.json -> _locales -> en -> appDescription -> description`
-
-The description of the application description of the browser plugin.
-
-`config.json -> _locales -> en -> btnTooltip -> message`
-
-The tooltip of the browser plugin.
-
-`config.json -> _locales -> en -> btnTooltip -> description`
-
-The description of the tooltip of the browser plugin.
+`config.json → _locales → en → btnTooltip → description`<br>
+_The description of the tooltip of the browser plugin._
 
 #### Front-Facing Pages
 
@@ -181,65 +167,50 @@ The front-facing pages of the plugin refer to the webpages that are accessible t
 
 The front-facing pages of the plugin rely on web-design editing conventions, and so can be easily edited to suit your own design preferences. In our own version, we provide a basic layout that can be easily customized to help you quickly distribution your own version of the plugin, as well as demonstrate the automatic compilation factors that will also make the process of configuring the plugin easier. Resources can be added or removed in the [branding](https://github.com/Australian-Internet-Observatory/aio-periodic-archiving-daemon/tree/master/plugin/src/resources/branding) directory. Furthermore, some common strings used across the various web pages are given here, and have been integrated into common UI designs to fast-track re-design of the plugin:
 
-`config.json -> strings -> commonMappings -> LANGUAGE`
+`config.json → strings → commonMappings → LANGUAGE`<br>
+_The HTML language setting of the page._
 
-The HTML language setting of the page.
+`config.json → strings → commonMappings → PLUGIN_FORMAL_NAME`<br>
+_The formal name of the plugin, as it would display in a browser._
 
-`config.json -> strings -> commonMappings -> PLUGIN_FORMAL_NAME`
+`config.json → strings → commonMappings → URL_BRANDING`<br>
+_The URL of the research project administering the plugin._
 
-The formal name of the plugin, as it would display in a browser.
+`config.json → strings → commonMappings → INSTITUTIONAL_LOGO_FILE`<br>
+_The institutional logo to feature on the plugin._
 
-`config.json -> strings -> commonMappings -> URL_BRANDING`
+`config.json → strings → commonMappings → INSTITUTIONAL_LOGO_FILE_BW_TRANSPARENT`<br>
+_A secondary 'black-and-white' version of the institutional logo to feature on the plugin._
 
-The URL of the research project administering the plugin.
+`config.json → strings → commonMappings → URL_LEARN_MORE`<br>
+_A URL that can be visited to learn more about the plugin._
 
-`config.json -> strings -> commonMappings -> INSTITUTIONAL_LOGO_FILE`
+`config.json → strings → commonMappings → URL_PRIVACY_POLICY`<br>
+_A URL that can be visited to read the privacy policy of the plugin._
 
-The institutional logo to feature on the plugin.
+`config.json → strings → commonMappings → FAVICON_APPLE_TOUCH`<br>
+_The 'Apple Touch' metadata entry of the 'favicon' for the webpage._
 
-`config.json -> strings -> commonMappings -> INSTITUTIONAL_LOGO_FILE_BW_TRANSPARENT`
+`config.json → strings → commonMappings → FAVICON_16x`<br>
+_The '16x' metadata entry of the 'favicon' for the webpage._
 
-A secondary 'black-and-white' version of the institutional logo to feature on the plugin.
+`config.json → strings → commonMappings → FAVICON_32x`<br>
+_The '32x' metadata entry of the 'favicon' for the webpage._
 
-`config.json -> strings -> commonMappings -> URL_LEARN_MORE`
+`config.json → strings → commonMappings → FAVICON_WEBMANIFEST`<br>
+_The 'web manifest' metadata entry of the 'favicon' for the webpage._
 
-A URL that can be visited to learn more about the plugin.
+`config.json → strings → commonMappings → FAVICON`<br>
+_The 'favicon' metadata entry of the 'favicon' for the webpage._
 
-`config.json -> strings -> commonMappings -> URL_PRIVACY_POLICY`
+`config.json → strings → commonMappings → PAGE_AGNOSTIC_LOADING_HEADING`<br>
+_The heading that appears on loading screens of the plugin._
 
-A URL that can be visited to read the privacy policy of the plugin.
+`config.json → strings → commonMappings → METADATA_PAGE_AUTHOR`<br>
+_The common author of the front-facing pages shown for the plugin._
 
-`config.json -> strings -> commonMappings -> FAVICON_APPLE_TOUCH`
-
-The 'Apple Touch' metadata entry of the 'favicon' for the webpage.
-
-`config.json -> strings -> commonMappings -> FAVICON_16x`
-
-The '16x' metadata entry of the 'favicon' for the webpage.
-
-`config.json -> strings -> commonMappings -> FAVICON_32x`
-
-The '32x' metadata entry of the 'favicon' for the webpage.
-
-`config.json -> strings -> commonMappings -> FAVICON_WEBMANIFEST`
-
-The 'web manifest' metadata entry of the 'favicon' for the webpage.
-
-`config.json -> strings -> commonMappings -> FAVICON`
-
-The 'favicon' metadata entry of the 'favicon' for the webpage.
-
-`config.json -> strings -> commonMappings -> PAGE_AGNOSTIC_LOADING_HEADING`
-
-The heading that appears on loading screens of the plugin.
-
-`config.json -> strings -> commonMappings -> METADATA_PAGE_AUTHOR`
-
-The common author of the front-facing pages shown for the plugin.
-
-`config.json -> strings -> commonMappings -> METADATA_PAGE_DESCRIPTION`
-
-The common description of the front-facing pages shown for the plugin.
+`config.json → strings → commonMappings → METADATA_PAGE_DESCRIPTION`<br>
+_The common description of the front-facing pages shown for the plugin._
 
 ***Note:** Adding new keys to the 'commonMappings' can help you customize common strings to insert across the front-facing pages. Feel free to add or remove front-facing pages within your own development specifications of the plugin, and reference your custom keys as HTML comments to have them automatically inserted across pages (e.g. such as <!--A_CUSTOM_KEY--> would be automatically replaced across files).*
 
@@ -269,59 +240,47 @@ In cases such as when an internet connection is not available, the registration 
 
 This design is configurable by the following strings:
 
-`config.json -> strings -> registration.html -> REGISTER_HEADING`
+`config.json → strings → registration.html → REGISTER_HEADING`<br>
+_The heading of the registration page._
 
-The heading of the registration page.
+`config.json → strings → registration.html → REGISTER_LEAD`<br>
+_The blurb of the registration page._
 
-`config.json -> strings -> registration.html -> REGISTER_LEAD`
+`config.json → strings → registration.html → REGISTER_PLUGIN_LOGO_FILE`<br>
+_The registration imagery to show on the registration page._
 
-The blurb of the registration page.
+`config.json → strings → registration.html → REGISTER_LEARN_MORE_TEXT`<br>
+_The text that accompanies the link to the 'Learn More' page about the plugin._
 
-`config.json -> strings -> registration.html -> REGISTER_PLUGIN_LOGO_FILE`
+`config.json → strings → registration.html → REGISTER_PRIVACY_POLICY_TEXT`<br>
+_The text that accompanies the link to the 'privacy policy' page about the plugin._
 
-The registration imagery to show on the registration page.
+`config.json → strings → registration.html → REGISTER_BUTTON_SUBMIT_TEXT`<br>
+_The text that accompanies the button to submit the registration form._
 
-`config.json -> strings -> registration.html -> REGISTER_LEARN_MORE_TEXT`
+`config.json → strings → registration.html → ERROR_HEADING`<br>
+_The heading that displays when there is an error in the registration process._
 
-The text that accompanies the link to the 'Learn More' page about the plugin.
+`config.json → strings → registration.html → ERROR_LEAD`<br>
+_The blurb that displays when there is an error in the registration process._
 
-`config.json -> strings -> registration.html -> REGISTER_PRIVACY_POLICY_TEXT`
+`config.json → strings → registration.html → ERROR_LOGO_FILE`<br>
+_The error imagery to show on the registration page._
 
-The text that accompanies the link to the 'privacy policy' page about the plugin.
+`config.json → strings → registration.html → REGISTERED_HEADING`<br>
+_The heading that displays when registration completes successfully on the registration process._
 
-`config.json -> strings -> registration.html -> REGISTER_BUTTON_SUBMIT_TEXT`
+`config.json → strings → registration.html → REGISTERED_LEAD`<br>
+_The blurb that displays when the registration successfully completes on the registration process._
 
-The text that accompanies the button to submit the registration form.
-
-`config.json -> strings -> registration.html -> ERROR_HEADING`
-                
-The heading that displays when there is an error in the registration process.
-
-`config.json -> strings -> registration.html -> ERROR_LEAD`
-
-The blurb that displays when there is an error in the registration process.
-
-`config.json -> strings -> registration.html -> ERROR_LOGO_FILE`
-
-The error imagery to show on the registration page.
-
-`config.json -> strings -> registration.html -> REGISTERED_HEADING`
-
-The heading that displays when registration completes successfully on the registration process.
-
-`config.json -> strings -> registration.html -> REGISTERED_LEAD`
-
-The blurb that displays when the registration successfully completes on the registration process.
-
-`config.json -> strings -> registration.html -> REGISTERED_LOGO_FILE`
-
-The registration completion imagery to show on the registration page.
+`config.json → strings → registration.html → REGISTERED_LOGO_FILE`<br>
+_The registration completion imagery to show on the registration page._
 
 Irrespective of whether the participant accidentally closes the registration page and then loads it up at a later stage, the page itself is dynamically designed such that it can present the correct variation to them depending on their stage of the process - this is again indicated in the participant flow.
 
 ###### Demographic Form
 
-As part of any research project, the demographic characteristics that are captured from the participant are specific to the objectives of the research. The plugin is designed to complement this requirement by modularizing all demographic characteristics by respective HTML controls. We provide some example fields (both categorical and nominal in nature), and that are contained between the '<!-- Demographic Details Begin -->' and '<!-- Demographic Details End -->' comments of the page's HTML.
+As part of any research project, the demographic characteristics that are captured from the participant are specific to the objectives of the research. The plugin is designed to complement this requirement by modularizing all demographic characteristics by respective HTML controls. We provide some example fields (both categorical and nominal in nature), and that are contained between the '<!-- Demographic Details Begin -→' and '<!-- Demographic Details End -->' comments of the page's HTML.
 
 At the point of participant registration, these fields are evaluated by JavaScript (see [here](https://github.com/Australian-Internet-Observatory/aio-periodic-archiving-daemon/blob/master/plugin/src/scripts/registrationRoutine/registrationSubmit.js)), using Bootstrap validation techniques that can be written directly into the HTML. Any HTML input field possessing the 'demographic-field' 'className' HTML attribute will then be integrated directly into the payload that is sent from the registration form, up to the cloud server (which is later elaborated in the Data Collection section).
 
@@ -335,29 +294,23 @@ Upon successful completion of the registration process, the 'share' page present
 
 This design is configurable by the following strings:
 
-`config.json -> strings -> share.html -> SHARE_HEADING`
+`config.json → strings → share.html → SHARE_HEADING`<br>
+_The heading of the share page._
 
-The heading of the share page.
+`config.json → strings → share.html → SHARE_LEAD`<br>
+_The blurb of the share page._
 
-`config.json -> strings -> share.html -> SHARE_LEAD`
+`config.json → strings → share.html → SHARE_PLUGIN_LOGO_FILE`<br>
+_The 'share the plugin' imagery to show on the share page._
 
-The blurb of the share page.
+`config.json → strings → share.html → SHARE_FACEBOOK_URL`<br>
+_The 'call-to-action' link for sharing the plugin to Facebook._
 
-`config.json -> strings -> share.html -> SHARE_PLUGIN_LOGO_FILE`
+`config.json → strings → share.html → SHARE_LINKEDIN_URL`<br>
+_The 'call-to-action' link for sharing the plugin to LinkedIn._
 
-The 'share the plugin' imagery to show on the share page.
-
-`config.json -> strings -> share.html -> SHARE_FACEBOOK_URL`
-
-The 'call-to-action' link for sharing the plugin to Facebook.
-
-`config.json -> strings -> share.html -> SHARE_LINKEDIN_URL`
-
-The 'call-to-action' link for sharing the plugin to LinkedIn.
-
-`config.json -> strings -> share.html -> SHARE_BLUESKY_URL`
-
-The 'call-to-action' link for sharing the plugin to BlueSky.
+`config.json → strings → share.html → SHARE_BLUESKY_URL`<br>
+_The 'call-to-action' link for sharing the plugin to BlueSky._
 
 ##### Countdown to Archiving Process
 
@@ -369,33 +322,26 @@ Intermittently the plugin will automatically spin up an archiving process. This 
 
 This design is configurable by the following strings:
 
-`config.json -> strings -> countdown.html -> COUNTDOWN_HEADING`
+`config.json → strings → countdown.html → COUNTDOWN_HEADING`<br>
+_The heading of the countdown page._
 
-The heading of the countdown page.
+`config.json → strings → countdown.html → COUNTDOWN_HEADING_ALT`<br>
+_The heading of the countdown page also - however ending with an ellipsis._
 
-`config.json -> strings -> countdown.html -> COUNTDOWN_HEADING_ALT`
+`config.json → strings → countdown.html → COUNTDOWN_LEAD`<br>
+_The blurb of the countdown page._
 
-The heading of the countdown page also - however ending with an ellipsis.
+`config.json → strings → countdown.html → COUNTDOWN_PAUSED_MODAL_HEADING`<br>
+_The heading of the modal that displays when the countdown page is paused._
 
-`config.json -> strings -> countdown.html -> COUNTDOWN_LEAD`
+`config.json → strings → countdown.html → COUNTDOWN_PAUSED_MODAL_TEXT`<br>
+_The text of the modal that displays when the countdown page is paused._
 
-The blurb of the countdown page.
+`config.json → strings → countdown.html → BUTTON_PAUSE_FOR_24HRS_TEXT`<br>
+_The text that displays on the button that pauses the archiving process, and by extension, the countdown._
 
-`config.json -> strings -> countdown.html -> COUNTDOWN_PAUSED_MODAL_HEADING`
-
-The heading of the modal that displays when the countdown page is paused.
-
-`config.json -> strings -> countdown.html -> COUNTDOWN_PAUSED_MODAL_TEXT`
-
-The text of the modal that displays when the countdown page is paused.
-
-`config.json -> strings -> countdown.html -> BUTTON_PAUSE_FOR_24HRS_TEXT`
-
-The text that displays on the button that pauses the archiving process, and by extension, the countdown.
-
-`config.json -> strings -> countdown.html -> BUTTON_CANCEL_PROCESS_TEXT`
-
-The text that displays on the button that cancels the archiving process, and by extension, the countdown.
+`config.json → strings → countdown.html → BUTTON_CANCEL_PROCESS_TEXT`<br>
+_The text that displays on the button that cancels the archiving process, and by extension, the countdown._
 
 ##### Archiving Process
 
@@ -407,13 +353,11 @@ When an archiving process begins, the plugin will display an out-of-focus window
 
 This design is configurable by the following strings:
 
-`config.json -> strings -> archiving_process.html -> ARCHIVING_PROCESS_HEADING`
+`config.json → strings → archiving_process.html → ARCHIVING_PROCESS_HEADING`<br>
+_The heading of the archiving page._
 
-The heading of the archiving page.
-
-`config.json -> strings -> archiving_process.html -> ARCHIVING_PROCESS_TEXT_LEAD`
-
-The blurb of the archiving page.
+`config.json → strings → archiving_process.html → ARCHIVING_PROCESS_TEXT_LEAD`<br>
+_The blurb of the archiving page._
 
 ##### The In-Browser Pop-Up
 
@@ -433,101 +377,78 @@ At any stage during which the plugin is installed on the participant's browser, 
 
 This design is configurable by the following strings:
 
-`config.json -> strings -> popup.html -> BUTTON_TEST_RUN_TEXT`
+`config.json → strings → popup.html → BUTTON_TEST_RUN_TEXT`<br>
+_The text that displays on the button that indicates to 'test run' the plugin's archiving process._
 
-The text that displays on the button that indicates to 'test run' the plugin's archiving process.
+`config.json → strings → popup.html → BUTTON_REGISTER_TEXT`<br>
+_The text that displays on the button that indicates to register the plugin._
 
-`config.json -> strings -> popup.html -> BUTTON_REGISTER_TEXT`
+`config.json → strings → popup.html → BUTTON_PAUSE_FOR_24HRS_TEXT`<br>
+_The text that displays on the button that indicates to pause the plugin for 24 hours._
 
-The text that displays on the button that indicates to register the plugin.
+`config.json → strings → popup.html → ABOUT_THIS_PROJECT_TEXT`<br>
+_The text that displays on the link to learn more about the relevant research project._
 
-`config.json -> strings -> popup.html -> BUTTON_PAUSE_FOR_24HRS_TEXT`
-
-The text that displays on the button that indicates to pause the plugin for 24 hours.
-
-`config.json -> strings -> popup.html -> ABOUT_THIS_PROJECT_TEXT`
-
-The text that displays on the link to learn more about the relevant research project.
-
-`config.json -> strings -> popup.html -> BUTTON_PAUSE_FOR_24HRS_RESUME_TEXT`
+`config.json → strings → popup.html → BUTTON_PAUSE_FOR_24HRS_RESUME_TEXT`<br>
+_The text that displays on the button to resume the project for 24 hours._
     
-The text that displays on the button to resume the project for 24 hours.
+`config.json → strings → popup.html → PLUGIN_STATUS_TEXT`<br>
+_The text that displays to indicate the status of the plugin._
     
-`config.json -> strings -> popup.html -> PLUGIN_STATUS_TEXT`
+`config.json → strings → popup.html → PLUGIN_STATUS_REGISTERED_TEXT`<br>
+_The text that displays to indicate that the plugin is registered._
     
-The text that displays to indicate the status of the plugin.
+`config.json → strings → popup.html → PLUGIN_STATUS_UNREGISTERED_TEXT`<br>
+_The text that displays to indicate that the plugin is unregistered._
     
-`config.json -> strings -> popup.html -> PLUGIN_STATUS_REGISTERED_TEXT`
+`config.json → strings → popup.html → PLUGIN_DATA_COLLECTION_WINDOW_ENDED_TEXT`<br>
+_The text that displays to indicate that the plugin's data collection window has ended._
     
-The text that displays to indicate that the plugin is registered.
-    
-`config.json -> strings -> popup.html -> PLUGIN_STATUS_UNREGISTERED_TEXT`
-    
-The text that displays to indicate that the plugin is unregistered.
-    
-`config.json -> strings -> popup.html -> PLUGIN_DATA_COLLECTION_WINDOW_ENDED_TEXT`
-    
-The text that displays to indicate that the plugin's data collection window has ended.
-    
-`config.json -> strings -> popup.html -> PLUGIN_DATA_COLLECTION_WINDOW_ENDED_IMAGE`
-    
-The imagery that indicates that the data collection time window has ended.
+`config.json → strings → popup.html → PLUGIN_DATA_COLLECTION_WINDOW_ENDED_IMAGE`<br>
+_The imagery that indicates that the data collection time window has ended._
 
 ### Constants
 
 Beyond branding the plugin, there are also values that can be set in order to augment the general behaviour of the plugin - these are given as follows:
 
-`config.json -> constants -> startDate`
+`config.json → constants → startDate`<br>
+_The start date of the intended data collection (given as an ISO date/time string) - the plugin will not run before this date._
 
-The start date of the intended data collection (given as an ISO date/time string) - the plugin will not run before this date.
+`config.json → constants → endDate`<br>
+_The end date of the intended data collection (given as an ISO date/time string) - the plugin will not run after this date._
 
-`config.json -> constants -> endDate`
+`config.json → constants → learnMorePage`<br>
+_The link to the webpage where participants can learn more about the research project._
 
-The end date of the intended data collection (given as an ISO date/time string) - the plugin will not run after this date.
+`config.json → constants → runInterval`<br>
+_The number of minutes that will elapse between executions of the plugin._
 
-`config.json -> constants -> learnMorePage`
+`config.json → constants → searchProcessInterval`<br>
+_The time (in milliseconds) that should elapse between individual archiving processes._
 
-The link to the webpage where participants can learn more about the research project.
+`config.json → constants → timeDelayMillisecondsBeforeStartingProcess`<br>
+_The time (in milliseconds) that should elapse after the countdown completes, and before starting a new archiving process._
 
-`config.json -> constants -> runInterval`
+`config.json → constants → timeMillisecondsCheckTimerValue`<br>
+_The time (in milliseconds) that should elapse before a new check is undertaken on the status of the archiving process._
 
-The number of minutes that will elapse between executions of the plugin.
+`config.json → constants → maxTimesToRunPerDay`<br>
+_The maximum number of times that an archiving process can run within a given day._
 
-`config.json -> constants -> searchProcessInterval`
+`config.json → constants → timeMillisecondsToWaitBeforeSendingBackScrapeFirstAttempt`<br>
+_The time (in milliseconds) that should elapse before running the first attempt to retrieve a scrape on an archived query._
 
-The time (in milliseconds) that should elapse between individual archiving processes.
+`config.json → constants → timeMillisecondsToWaitBeforeSendingBackScrapeSecondAttempt`<br>
+_The time (in milliseconds) that should elapse before running the second attempt to retrieve a scrape on an archived query._
 
-`config.json -> constants -> timeDelayMillisecondsBeforeStartingProcess`
+`config.json → constants → timeMillisecondsToWaitBeforeSendingBackScrapeThirdAttempt`<br>
+_The time (in milliseconds) that should elapse before running the third attempt to retrieve a scrape on an archived query._
 
-The time (in milliseconds) that should elapse after the countdown completes, and before starting a new archiving process.
+`config.json → constants → timeMillisecondsBeforeDeletingWindowFirstAttempt`<br>
+_The time (in milliseconds) that should elapse before deleting an 'archiving process' window._
 
-`config.json -> constants -> timeMillisecondsCheckTimerValue`
-
-The time (in milliseconds) that should elapse before a new check is undertaken on the status of the archiving process.
-        
-`config.json -> constants -> maxTimesToRunPerDay`
-
-The maximum number of times that an archiving process can run within a given day.
-
-`config.json -> constants -> timeMillisecondsToWaitBeforeSendingBackScrapeFirstAttempt`
-
-The time (in milliseconds) that should elapse before running the first attempt to retrieve a scrape on an archived query.
-
-`config.json -> constants -> timeMillisecondsToWaitBeforeSendingBackScrapeSecondAttempt`
-
-The time (in milliseconds) that should elapse before running the second attempt to retrieve a scrape on an archived query.
-
-`config.json -> constants -> timeMillisecondsToWaitBeforeSendingBackScrapeThirdAttempt`
-
-The time (in milliseconds) that should elapse before running the third attempt to retrieve a scrape on an archived query.
-
-`config.json -> constants -> timeMillisecondsBeforeDeletingWindowFirstAttempt`
-
-The time (in milliseconds) that should elapse before deleting an 'archiving process' window.
-
-`config.json -> constants -> firefoxGeckoID`
-
-For distributing the plugin to the Mozilla Firefox Add-Ons Store, a Gecko ID is provided by their online development console, and should be specified here. Learn more [here](https://extensionworkshop.com/documentation/develop/extensions-and-the-add-on-id/).
+`config.json → constants → firefoxGeckoID`<br>
+_For distributing the plugin to the Mozilla Firefox Add-Ons Store, a Gecko ID is provided by their online development console, and should be specified here. Learn more [here](https://extensionworkshop.com/documentation/develop/extensions-and-the-add-on-id/)._
 
 ### Building The Plugin
 
@@ -559,13 +480,13 @@ In this section, various components of the Periodic Archiving Daemon's scrape ro
 
 Before being able to visit web pages, the Periodic Archiving Daemon must first outline the patterns of the sites that it intends to visit. This can be achieved by editing the example patterns given in the following locations:
 
-`config.json -> manifest -> common -> content_scripts -> matches`
+`config.json → manifest → common → content_scripts → matches`
 
-`config.json -> manifest -> contextualised -> permissions -> 2`
+`config.json → manifest → contextualised → permissions → 2`
 
 ***Note:** Only edit the patterns after the webRequestBlocking entry.*
 
-`config.json -> manifest -> contextualised -> host_permissions -> 3`
+`config.json → manifest → contextualised → host_permissions → 3`
 
 These patterns follow the conventions outlined [here](https://developer.chrome.com/docs/extensions/develop/concepts/match-patterns) and must be specified in order for the plugin to work.
 
@@ -573,7 +494,7 @@ These patterns follow the conventions outlined [here](https://developer.chrome.c
 
 A foundational component of the Periodic Archiving Daemon is the ability to spoof user agents, in order to control what kind of content is delivered by the websites that are visited. These user agents are distinguished by their user agent strings, and can be set at the following location:
 
-`config.json -> userAgentTypes`
+`config.json → userAgentTypes`
 
 ***Note:** Any key within this object forms the name of a user agent that will be indexed by the scraper for the archiving process. The `user_agent` key for the sub-object of each key therein spoofs the identity of the browser to the website being visited.*
 
@@ -585,11 +506,11 @@ A foundational component of the Periodic Archiving Daemon is the ability to spoo
 
 The Periodic Archiving Daemon is capable of scraping both hard-coded websites, and websites with injected queries. Pre-defined query terms can be listed at the following location:
 
-`config.json -> scraper -> keywords`
+`config.json → scraper → keywords`
 
 During the archiving process, these keywords are encoded to support injection into a URL. Then, depending on the user agent that is being currently spoofed, relevant details are retrieved from the following location:
 
-`config.json -> scraper -> selectors_<USER_AGENT_BEING_SPOOFED>`
+`config.json → scraper → selectors_<USER_AGENT_BEING_SPOOFED>`
 
 At this location, you can define a list of objects, where each is an individual website URL that you wish to archive. The following fields can be set therein:
 
@@ -599,7 +520,7 @@ At this location, you can define a list of objects, where each is an individual 
 | `url`      | The website URL to visit. For this value, the following two flags can optionally be set:<br /><br />**DYNAMIC_OPTIONS_KEYWORD** : This will be replaced with the relevant keyword that is currently being enumerated on the website's URL.<br />**DYNAMIC_NAVIGATOR_LANGUAGE** : This will be replaced with the navigator language, relative to the browser. |
 | `items`    | For every key contained in this object, the scraper will attempt to retrieve a result defined by the value of the key. In the 'Scrape-Value Interpreter' section, this will be elaborated further. |
 
-***Note:** If you are not interested in parameterizing the set of keywords over the user agent, you can simply set the `config.json -> scraper -> keywords` value to a list of one single empty string (i.e., `""`). Then, the website URLs to visit can be hard-coded again at `config.json -> scraper -> selectors_<USER_AGENT_BEING_SPOOFED>`, however without including the `DYNAMIC_OPTIONS_KEYWORD` flag therein.*
+***Note:** If you are not interested in parameterizing the set of keywords over the user agent, you can simply set the `config.json → scraper → keywords` value to a list of one single empty string (i.e., `""`). Then, the website URLs to visit can be hard-coded again at `config.json → scraper → selectors_<USER_AGENT_BEING_SPOOFED>`, however without including the `DYNAMIC_OPTIONS_KEYWORD` flag therein.*
 
 ### Query Enumeration
 
@@ -621,7 +542,7 @@ Although most of contemporary target websites were found to regularly update the
 
 To overcome this, the ReGeX approach would need to be injected instantaneously - for this reason, the config.json file is designed to frequently update from the URL set at the following location:
 
-`config.json -> configURL`
+`config.json → configURL`
 
 However, even this added versatility would not be able to anticipate the complexity, or unknown forms in which data could be presented. Ideally, the software would benefit the usage of EcmaScript 'eval' usage, which would allow for direct injection of EcmaScript (the compiler language of the plugin) into the scraper functionality. However this line of functionality has been restricted by vendors for security reasons.
 
@@ -704,7 +625,7 @@ As was previously elaborated in the Registration Form section, demographic detai
 
 ***Note:** The 'created_at' field is generated by the Lambda function, and added to the payload dynamically.*
 
-To anticipate a payload such as this, edit the file [here](https://github.com/Australian-Internet-Observatory/aio-periodic-archiving-daemon/blob/master/backend/data_collection_lambda/config.json). Therein the path `demographic_details -> mappings` provide the key paths to each demographic characteristic that will be anticipated, as well as the formal names for these characteristics when compiling a spreadsheet of data. The path for the ordering of the columns to be fed into the spreadsheet is given at `demographic_details -> orderings`. Furthermore, the name of the bucket to which demographic details for newly registering participants is given at `s3_demographic_data_bucket`.
+To anticipate a payload such as this, edit the file [here](https://github.com/Australian-Internet-Observatory/aio-periodic-archiving-daemon/blob/master/backend/data_collection_lambda/config.json). Therein the path `demographic_details → mappings` provide the key paths to each demographic characteristic that will be anticipated, as well as the formal names for these characteristics when compiling a spreadsheet of data. The path for the ordering of the columns to be fed into the spreadsheet is given at `demographic_details → orderings`. Furthermore, the name of the bucket to which demographic details for newly registering participants is given at `s3_demographic_data_bucket`.
 
 ##### Local Reporting & Debugging
 
