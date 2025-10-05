@@ -150,13 +150,15 @@ function manifestTask() {
 // locales
 function localesTask() {
   // Create the locales directory
+  // TODO - return to this
+  /*
   const thisLocalesSource = loadJSON(`./config.json`)["_locales"];
   const localesPath = path.join(__dirname, 'dist', `build_MV${mv}`, `${target}`, '_locales');
   fs.mkdirSync(localesPath, { recursive: true });
   for (var thisLanguage in thisLocalesSource) {
     const thisLanguageLocalesPath = path.join(localesPath, thisLanguage);
     fs.writeFileSync(path.join(`${localesPath}`, 'messages.json'), JSON.stringify(thisLocalesSource[thisLanguage], null, 2));
-  }
+  }*/
 
   return Promise.resolve();
 }
