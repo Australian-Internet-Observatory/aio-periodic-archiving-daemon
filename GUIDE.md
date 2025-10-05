@@ -74,7 +74,7 @@ White-labelling the software will be necessary to distinguish your own research 
 
 For browser-based plugins, general conventions encourage a 'square-like' PNG icon that can display aesthetically on both light and dark backgrounds (see [here](https://developer.chrome.com/docs/webstore/images#icons)).
 
-<img src="./demo-media/brand-icon.png" alt="brand-icon" style="zoom:10%; float:left;" />
+<img src="./demo-media/brand-icon.png" alt="brand-icon" style="width:10%; float:left;" />
 
 ***Note:** We've supplied our own icon for demonstration, however you'll need to adjust this to reflect your own research project's brand.*
 
@@ -96,25 +96,20 @@ Editing the plugin name and description (as well as other general strings) is de
 
 These strings are described below:
 
-`config.json -> manifest -> common -> name`
+<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ name</span>
+<span style="size: 8pt;"><i>The name of the plugin.</i></span>
 
-The name of the plugin.
+<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ action ➡ default_title</span>
+<span style="size: 8pt;"><i>The default title of the plugin.</i></span>
 
-`config.json -> manifest -> common -> action -> default_title`
+<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ version</span>
+<span style="size: 8pt;"><i>The version of the plugin.</i></span>
 
-The default title of the plugin.
+<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ description</span>
+<span style="size: 8pt;"><i>The description of the plugin.</i></span>
 
-`config.json -> manifest -> common -> version`
-
-The version of the plugin.
-
-`config.json -> manifest -> common -> description`
-
-The description of the plugin.
-
-`config.json -> manifest -> common -> default_locale`
-
-The default locale to use when executing the plugin.
+<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ default_locale</span>
+<span style="size: 8pt;"><i>The default locale to use when executing the plugin.</i></span>
 
 The next set of strings relate to the packaging of the plugin - as the plugin is a Node JS project, they follow the general conventions of the applicable set-up:
 
@@ -252,7 +247,7 @@ The common description of the front-facing pages shown for the plugin.
 
 To understand when front-facing pages are shown, it is important to understand the flow a participant takes when using the plugin. Firstly a participant installs the plugin, triggering a registration form to open. Until the participant has completed registration, they will be unable to submit data donations. Whereas upon successfully submitting the registration form, the plugin then automatically loads a page to encourage the participant to share the plugin (as is common in citizen science research projects). The plugin will then periodically open a page that displays a countdown, before officially running the archiving process. During this entire process, the participant can also access the plugin 'pop-up' window from their browser bar. Depending on the status of their plugin, it will show a relevant corresponding window - in the case that the participant is registered, they are given the option to either 'test run' or 'pause' the plugin for 24 hours. A visual representation of this flow is given below:
 
-<img src="./demo-media/participant-flow.png" style="zoom:100%; float:left;" />
+<img src="./demo-media/participant-flow.png" style="width:100%; float:left;" />
 
 The HTML files for all front-facing pages are given [here](https://github.com/Australian-Internet-Observatory/aio-periodic-archiving-daemon/tree/master/plugin/src/pages), and are further elaborated below.
 
@@ -262,15 +257,15 @@ The HTML files for all front-facing pages are given [here](https://github.com/Au
 
 The registration form has two variations that are shown - the first being that the participant is unregistered:
 
-<img src="./demo-media/participant-unregistered.png" style="zoom:50%; float:left;" />
+<img src="./demo-media/participant-unregistered.png" style="width:60%; float:left;" />
 
 The second being that the participant is registered:
 
-<img src="./demo-media/participant-registered.png" style="zoom:50%; float:left;" />
+<img src="./demo-media/participant-registered.png" style="width:60%; float:left;" />
 
 In cases such as when an internet connection is not available, the registration process (which relies on an internet connection) may fail - in this case, the following variation will be shown.
 
-<img src="./demo-media/participant-registration-error.png" style="zoom:50%; float:left;" />
+<img src="./demo-media/participant-registration-error.png" style="width:60%; float:left;" />
 
 This design is configurable by the following strings:
 
@@ -336,7 +331,7 @@ At the point of participant registration, these fields are evaluated by JavaScri
 
 Upon successful completion of the registration process, the 'share' page presents a few methods to encourage the participant to share their usage of the plugin. Presently, these include post buttons to LinkedIn, Facebook, and BlueSky.
 
-<img src="./demo-media/participant-share-plugin.png" style="zoom:50%; float:left;" />
+<img src="./demo-media/participant-share-plugin.png" style="width:60%; float:left;" />
 
 This design is configurable by the following strings:
 
@@ -370,7 +365,7 @@ The 'call-to-action' link for sharing the plugin to BlueSky.
 
 Intermittently the plugin will automatically spin up an archiving process. This will be prefaced by a countdown that the participant can then action if necessary. In some cases, the participant may wish to cancel or pause the process - for this, the plugin also provides options.
 
-<img src="./demo-media/participant-countdown-to-archiving-process.png" style="zoom:50%; float:left;" />
+<img src="./demo-media/participant-countdown-to-archiving-process.png" style="width:60%; float:left;" />
 
 This design is configurable by the following strings:
 
@@ -408,7 +403,7 @@ The text that displays on the button that cancels the archiving process, and by 
 
 When an archiving process begins, the plugin will display an out-of-focus window that enables the participant to go about their usual browser behaviour without being interrupted. In the out-of-focus window will be the 'archiving process' page, as well as various 'query' pages that are spun up by the archiving process.
 
-<img src="./demo-media/participant-archiving-process.png" style="zoom:50%; float:left;" />
+<img src="./demo-media/participant-archiving-process.png" style="width:60%; float:left;" />
 
 This design is configurable by the following strings:
 
@@ -426,15 +421,15 @@ The blurb of the archiving page.
 
 At any stage during which the plugin is installed on the participant's browser, they will be able to access the pop-up by clicking a button in their browser bar. As indicated by the participant flow, this may direct them to register...
 
-<img src="./demo-media/participant-popup-unregistered.png" style="zoom:75%; float:left;" />
+<img src="./demo-media/participant-popup-unregistered.png" style="width:20%; float:left;" />
 
 ...enable them to perform various plugin functions...
 
-<img src="./demo-media/participant-popup-registered.png" style="zoom:75%; float:left;" />
+<img src="./demo-media/participant-popup-registered.png" style="width:20%; float:left;" />
 
 ...or observe completion of the research project's data collection phase.
 
-<img src="./demo-media/participant-popup-data-collection-ended.png" style="zoom:75%; float:left;" />
+<img src="./demo-media/participant-popup-data-collection-ended.png" style="width:20%; float:left;" />
 
 This design is configurable by the following strings:
 
@@ -610,7 +605,7 @@ At this location, you can define a list of objects, where each is an individual 
 
 The number of queries that the Periodic Archiving Daemon should make in a single archiving process are equivalent to the number of user agents that are spoofed, multiplied by the number of keywords, again multiplied by the number of website URLs indicated for the user agent. Hypothetically, this number grows large very quickly - to avoid overloading the browser with web requests, only one user agent is spoofed per archiving process.
 
-<img src="./demo-media/query_enumeration.jpg" style="zoom:45%; float:left;" />
+<img src="./demo-media/query_enumeration.jpg" style="width:50%; float:left;" />
 
 *A visualisation of all the different combinations of web pages that would need to be visited within a single archiving process - this amount is greatly decreased by only setting the process to one user agent in a single archiving process.*
 
@@ -685,7 +680,7 @@ Beyond the plugin, the process of data collection is facilitated by resources th
 
 The data collection function is the first of the cloud solutions; it is responsible for offering API endpoints (facilitated by API GateWay) to which participants can send data donations and demographic data. Provided that the data is well-formed, it then routes it to relevant S3 buckets, where it is processed further if necessary.
 
-<img src="./demo-media/data-collection-functionality.png" style="zoom:70%; float:left;" />
+<img src="./demo-media/data-collection-functionality.png" style="width:50%; float:left;" />
 
 #### Demographic Data
 
@@ -762,6 +757,6 @@ chmod 777 lambda.sh # Some devices require permissions to run scripts of this ki
 
 Data donations are facilitated by a perpetually operational Docker container that is routinely spun up by an EventBridge. The container processes incoming data donations, injecting them into a PostGreSQL RDS solution that can be accessed on a local machine through an EC2 'jump-box':
 
-<img src="./demo-media/data-viewing-functionality.png" style="zoom:100%; float:left;" />
+<img src="./demo-media/data-viewing-functionality.png" style="width:65%; float:left;" />
 
 For more details on this specification, read the sub-guide [here](https://github.com/Australian-Internet-Observatory/aio-periodic-archiving-daemon/tree/master/backend/process_s3_objects).
