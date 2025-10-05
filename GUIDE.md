@@ -4,7 +4,7 @@ The Periodic Archiving Daemon is a software research solution that has been deve
 
 The central part of the solution takes the form of a web browser plugin - the plugin periodically 'wakes up' and accesses web pages while you go about your usual web experience. It then submits web archive data to a cloud-based database, where it can then be managed and interpreted by relevant researchers.
 
-<img src="./demo-media/general-diagram.png" style="zoom:75%; float:left;" />
+<img src="./demo-media/general-diagram.png" style="width:75%; float:left;" />
 
 ___This online guide has been designed to make usage of the Periodic Archiving Daemon streamlined and intuitive, so that it may be easily white-labelled and adapted to various research contexts.___
 
