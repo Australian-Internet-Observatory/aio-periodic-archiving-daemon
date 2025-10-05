@@ -96,7 +96,7 @@ Editing the plugin name and description (as well as other general strings) is de
 
 These strings are described below:
 
-<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ name</span>
+<span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json → manifest → common → name</span><br>
 <span style="size: 8pt;"><i>The name of the plugin.</i></span>
 
 <span style="font-family: 'Courier'; size: 12pt; color: orange; background-color: rgba(0,0,0,0.5); padding: 5px;">config.json ➡ manifest ➡ common ➡ action ➡ default_title</span>
