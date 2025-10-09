@@ -560,7 +560,11 @@ An interpreter string is composed of three kinds of elements:
 | **Flags**       | Flags signal instructions to execute a process or transformation on the value, and are encased in parenthesis of form `[` and `]`.<br />e.g. `[FLAG_UNESCAPE]` unescapes the result. |
 | **ReGeX**       | ReGeX can be used to isolate one or more results from the value, and does not require parenthesis.<br />e.g. `(?<=foo).*?(?=bar)` yields everything between the texts `foo` and `bar` in the result. |
 
-These elements can be implemented infinitely many times, and carry forward their results to one another - as the Scrape-Value Interpreter evaluates the prescribed elements from *right-to-left*, instructions given by each of the elements are then also implemented on the result (or results) from right to left. The initial value on which the elements' instructions are carried out is the raw HTML of the page. Thus, an interpreter string of `^.*$` would yield the entire HTML of the scraped page. Whereas, an interpreter string of 
+These elements can be implemented infinitely many times, and carry forward their results to one another - as the Scrape-Value Interpreter evaluates the prescribed elements from *right-to-left*, instructions given by each of the elements are then also implemented on the result (or results) from right to left. The initial value on which the elements' instructions are carried out is the raw HTML of the page. Thus, an interpreter string of
+<br><br>
+`^.*$`
+<br><br>
+would yield the entire HTML of the scraped page. Whereas, an interpreter string of 
 <br><br>
 `-{http://www.website.com/?q=}-[FLAG_UNESCAPE](?<=foo).*?(?=bar)`
 <br><br>
