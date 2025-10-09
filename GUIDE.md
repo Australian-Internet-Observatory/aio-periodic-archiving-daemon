@@ -561,10 +561,16 @@ An interpreter string is composed of three kinds of elements:
 | **ReGeX**       | ReGeX can be used to isolate one or more results from the value, and does not require parenthesis.<br />e.g. `(?<=foo).*?(?=bar)` yields everything between the texts `foo` and `bar` in the result. |
 
 These elements can be implemented infinitely many times, and carry forward their results to one another - as the Scrape-Value Interpreter evaluates the prescribed elements from *right-to-left*, instructions given by each of the elements are then also implemented on the result (or results) from right to left. The initial value on which the elements' instructions are carried out is the raw HTML of the page. Thus, an interpreter string of `^.*$` would yield the entire HTML of the scraped page. Whereas, an interpreter string of 
-<br>
+<br><br>
 `-{http://www.website.com/?q=}-[FLAG_UNESCAPE](?<=foo).*?(?=bar)`
-<br>
-would yield the result `http://www.website.com/?q=hello` if the raw HTML of the scraped page were `foo\u0068\u0065\u006c\u006c\u006fbar`.
+<br><br>
+would yield the result 
+<br><br>
+`http://www.website.com/?q=hello` 
+<br><br>
+if the raw HTML of the scraped page were 
+<br><br>
+`foo\u0068\u0065\u006c\u006c\u006fbar`.
 
 Furthermore, when specifying interpreter strings (as indicated in earlier sections), a list of interpreter strings are specified for a single key - if the first interpreter string returns a null value, the second is executed, and so on. This works as a fallback mechanism to promote stability of scraped results.
 
